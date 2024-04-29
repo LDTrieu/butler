@@ -1,0 +1,30 @@
+GrpcServer:
+    Port: 5002
+
+CronJob:
+    # try format
+    # https://crontab.guru/every-minute
+    EveryHours: '* 1 * * *'
+    EveryMinute: '* * * * *'
+    Every2Minute: '*/2 * * * *'
+    CronJobRemindDrinkWater: '*/30 9-18 * * *'
+    
+DiscordBot:
+    butler:
+        Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6ImV4YW1wbGUifQ.bDovzZdmxg9IoYncZgOtGSQXppfMp1wOimpnss-WoBQ
+
+Redis:
+    Addr: localhost:6379
+    Password: ''
+    Db: 0
+
+Postgresql:
+    Host: localhost
+    Port: 5432
+    DBName: postgres
+    User: sa
+    Password: 1234
+    Sslmode: disable
+
+Makersuite:
+    Key: nU091JPionOfYzaE0g37LaSijUJ1qnQ26nF
