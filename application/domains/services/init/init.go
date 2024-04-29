@@ -7,13 +7,13 @@ import (
 	"github.com/google/generative-ai-go/genai"
 )
 
-type services struct {
-	promtAiSv promtAiSv.IService
+type Services struct {
+	PromtAiSv promtAiSv.IService
 }
 
-func InitService(cfg *config.Config, genaiClient *genai.Client) *services {
+func InitService(cfg *config.Config, genaiClient *genai.Client) *Services {
 	initPromtAiSv := promtAiSv.InitService(cfg, genaiClient)
-	return &services{
-		promtAiSv: initPromtAiSv,
+	return &Services{
+		PromtAiSv: initPromtAiSv,
 	}
 }

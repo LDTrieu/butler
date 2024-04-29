@@ -11,41 +11,16 @@ import (
 )
 
 type Config struct {
-	CronJob    CronJob
 	DiscordBot DiscordBot
-	Redis      Redis
-	Postgresql Postgres
 	Mysql      Mysql
 	Makersuite MakersuiteConfig
-	GrpcServer GrpcServer
 }
 
-type CronJob struct {
-	EveryMinute             string
-	CronJobRemindDrinkWater string
-	Every2Minute            string
-}
-
-type butler struct {
+type Butler struct {
 	Token string
 }
 type DiscordBot struct {
-	butler butler
-}
-
-type Redis struct {
-	Addr     string
-	Password string
-	Db       int
-}
-
-type Postgres struct {
-	Host     string
-	Port     int64
-	DBName   string
-	User     string
-	Password string
-	Sslmode  string
+	Butler Butler
 }
 
 type Mysql struct {
@@ -74,10 +49,6 @@ func GetConfig() (*Config, error) {
 		return nil, err
 	}
 	return cfg, nil
-}
-
-type GrpcServer struct {
-	Port string
 }
 
 // Load config file from given path

@@ -1,8 +1,8 @@
 package server
 
 import (
-	commandsDelivery "butler/application/commands/delivery"
-	initMakersuiteHandler "butler/application/domains/external/makersuite/handler"
+	commandHandler "butler/application/commands/handler"
+	initPromtAiHandler "butler/application/domains/promt_ai/makersuite/handler"
 	initServices "butler/application/domains/services/init"
 	"context"
 
@@ -29,34 +29,16 @@ type Server struct {
 
 func NewServer(cfg *config.Config) *Server {
 	// discord
-	dg, err := discordgo.New("Bot " + cfg.DiscordBot.butler.Token)
+	dg, err := discordgo.New("Bot " + cfg.DiscordBot.Butler.Token)
 	if err != nil {
 		logrus.Fatalf("init discord bot err: %v", err)
 	}
 	dg.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
-	// redis
-	// redisCli := redis.NewClient(&redis.Options{
-	// 	Addr:     cfg.Redis.Addr,
-	// 	Password: cfg.Redis.Password,
-	// 	DB:       cfg.Redis.Db,
-	// })
-
-	// cron job
-	// crn := cron.New()
-
-	// sql
-	// db, _, err := postgresql.InitConnection(cfg)
-	// if err != nil {
-	// 	logrus.Fatalf("connect database err: %v", err)
-	// }
 	db, err := mysql.InitConnection(cfg)
 	if err != nil {
 		logrus.Fatalf("connect database err: %v", err)
 	}
-
-	// grpc
-	// rpcServer := grpc.NewServer(grpc.MaxRecvMsgSize(10 * constants.MB))
 
 	// genai client
 	genaiClient, err := genai.NewClient(context.Background(), option.WithAPIKey(cfg.Makersuite.ApiKey))
@@ -99,14 +81,10 @@ func (s *Server) run() {
 	services := initServices.InitService(s.cfg, s.genaiClient)
 
 	// init external
-	makersuiteHandler := initMakersuiteHandler.InitHandler(s.cfg, makersuiteSv)
-
-	// init domains
-	acc := initAccount.NewInit(s.cfg, s.db)
-	attendance := initAttendance.NewInit(s.cfg, s.db)
+	promtAiHandler := initPromtAiHandler.InitHandler(s.cfg, services)
 
 	// register handler
-	commandHandler := commandsDelivery.NewCommandsDelivery(s.discordBot, acc.DiscordHandler, attendance.Handler, makersuiteHandler)
+	commandHandler := commandHandler.NewCommandHandler(s.discordBot, promtAiHandler)
 	s.discordBot.AddHandler(commandHandler.GetCommandsHandler)
 
 	logrus.Infof("start server success")
