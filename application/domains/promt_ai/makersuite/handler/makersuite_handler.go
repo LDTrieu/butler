@@ -29,7 +29,6 @@ func (h Handler) Ask(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	message := preprocessingMessage(m.Content)
 	res, err := h.promtAiSv.Ask(message)
 	if err != nil {
-		s.ChannelMessageSend(m.ChannelID, err.Error()) // nolint
 		return err
 	}
 	s.ChannelMessageSend(m.ChannelID, res) // nolint

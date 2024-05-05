@@ -5,6 +5,7 @@ import (
 	"butler/constants"
 	"strings"
 
+	cartHandler "butler/application/domains/cart/delivery/discord/handler"
 	makersuiteHandler "butler/application/domains/promt_ai/makersuite/handler"
 
 	"github.com/bwmarrin/discordgo"
@@ -17,15 +18,18 @@ type Handler interface {
 type commandHandler struct {
 	discord           *discordgo.Session
 	makersuiteHandler makersuiteHandler.Handler
+	cartHandler       cartHandler.Handler
 }
 
 func NewCommandHandler(
 	discord *discordgo.Session,
 	makersuiteHandler makersuiteHandler.Handler,
+	cartHandler cartHandler.Handler,
 ) Handler {
 	return &commandHandler{
 		discord:           discord,
 		makersuiteHandler: makersuiteHandler,
+		cartHandler:       cartHandler,
 	}
 }
 
@@ -37,10 +41,16 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		return
 	}
 
+	var err error
 	switch {
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_HELP):
-		_ = helper.HandleHelpCommand(s, m)
+		err = helper.HandleHelpCommand(s, m)
 	case helper.CheckMention(m, s.State.User):
-		_ = c.makersuiteHandler.Ask(s, m)
+		err = c.makersuiteHandler.Ask(s, m)
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_CART):
+		err = c.cartHandler.ResetCart(s, m)
+	}
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, err.Error())
 	}
 }

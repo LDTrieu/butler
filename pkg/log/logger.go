@@ -35,7 +35,10 @@ func init() {
 func formatFilePath(path string) string {
 	arr := strings.Split(path, "/")
 	if len(arr) > 1 {
-		return fmt.Sprintf("%s/%s", arr[len(arr)-2], arr[len(arr)-1])
+		if len(arr) > 2 {
+			return strings.Join(arr[len(arr)-3:], "/")
+		}
+		return strings.Join(arr[len(arr)-2:], "/")
 	}
 	return arr[len(arr)-1]
 }
