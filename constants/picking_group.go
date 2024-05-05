@@ -1,0 +1,7 @@
+package constants
+
+const (
+	PICKING_GROUP_STATUS_NEW      int64 = 1
+	PICKING_GROUP_STATUS_CANCELED int64 = 2
+	PICKING_GROUP_STATUS_PICKING  int64 = 3
+)

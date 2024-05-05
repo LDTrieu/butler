@@ -2,6 +2,7 @@ package server
 
 import (
 	commandHandler "butler/application/commands/handler"
+	initCartHandler "butler/application/domains/cart/delivery/discord/handler"
 	initPromtAiHandler "butler/application/domains/promt_ai/makersuite/handler"
 	initServices "butler/application/domains/services/init"
 	"context"
@@ -18,12 +19,9 @@ import (
 )
 
 type Server struct {
-	cfg *config.Config
-	// cronJob     *cron.Cron
-	// redisCli    *redis.Client
-	discordBot *discordgo.Session
-	db         *gorm.DB
-	// grpcSv      *grpc.Server
+	cfg         *config.Config
+	discordBot  *discordgo.Session
+	db          *gorm.DB
 	genaiClient *genai.Client
 }
 
@@ -47,12 +45,9 @@ func NewServer(cfg *config.Config) *Server {
 	}
 
 	return &Server{
-		cfg:        cfg,
-		discordBot: dg,
-		// redisCli:    redisCli,
-		// cronJob:     crn,
-		db: db,
-		// grpcSv:      rpcServer,
+		cfg:         cfg,
+		discordBot:  dg,
+		db:          db,
 		genaiClient: genaiClient,
 	}
 }
@@ -63,10 +58,7 @@ func (s *Server) Start() {
 
 func (s *Server) Stop() {
 	s.discordBot.Close()
-	// s.redisCli.Close()
-	// s.cronJob.Stop()
 	s.genaiClient.Close()
-	// s.grpcSv.Stop()
 }
 
 func (s *Server) run() {
@@ -75,16 +67,17 @@ func (s *Server) run() {
 		logrus.Fatalf("opening connection discord err: %v", err)
 		return
 	}
-	// s.cronJob.Start()
-
 	// init services
-	services := initServices.InitService(s.cfg, s.genaiClient)
+	services := initServices.InitService(s.cfg, s.db, s.genaiClient)
 
 	// init external
 	promtAiHandler := initPromtAiHandler.InitHandler(s.cfg, services)
 
-	// register handler
-	commandHandler := commandHandler.NewCommandHandler(s.discordBot, promtAiHandler)
+	// init cart handler
+	cartHandler := initCartHandler.InitHandler(services)
+
+	// register handler for discord command
+	commandHandler := commandHandler.NewCommandHandler(s.discordBot, promtAiHandler, cartHandler)
 	s.discordBot.AddHandler(commandHandler.GetCommandsHandler)
 
 	logrus.Infof("start server success")

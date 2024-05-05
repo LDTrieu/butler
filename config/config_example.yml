@@ -11,7 +11,7 @@ CronJob:
     
 DiscordBot:
     butler:
-        Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6ImV4YW1wbGUifQ.bDovzZdmxg9IoYncZgOtGSQXppfMp1wOimpnss-WoBQ
+        Token: qwe
 
 Redis:
     Addr: localhost:6379
