@@ -1,14 +1,30 @@
+GrpcServer:
+    Port: 5002
+
+CronJob:
+    # try format
+    # https://crontab.guru/every-minute
+    EveryHours: '* 1 * * *'
+    EveryMinute: '* * * * *'
+    Every2Minute: '*/2 * * * *'
+    CronJobRemindDrinkWater: '*/30 9-18 * * *'
+    
 DiscordBot:
     butler:
-        Token: MTEzMzgxMDY3MjM5MjczNjg1MA.GmvkNH.ywqEVKjPEs5I3RQOQizc04rwf19dFbaa3PvYX4
+        Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6ImV4YW1wbGUifQ.bDovzZdmxg9IoYncZgOtGSQXppfMp1wOimpnss-WoBQ
 
-Mysql:
+Redis:
+    Addr: localhost:6379
+    Password: ''
+    Db: 0
+
+Postgresql:
     Host: localhost
-    Port: 3306
-    DBName: db_docker_local
-    Username: root
-    Password: linhnl
+    Port: 5432
+    DBName: postgres
+    User: sa
+    Password: 1234
+    Sslmode: disable
 
 Makersuite:
-    ApiKey: AIzaSyAj8DC0foFWGNzfc-2acLBO7Wm-um00yKI
-    Model: gemini-1.0-pro-latest
+    Key: nU091JPionOfYzaE0g37LaSijUJ1qnQ26nF
