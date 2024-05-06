@@ -35,7 +35,7 @@ func (u *usecase) ResetCart(ctx context.Context, params *models.ResetCartRequest
 	if err != nil {
 		return err
 	}
-	if cart.CartId == 0 {
+	if cart == nil || cart.CartId == 0 {
 		return fmt.Errorf("cart with code [%s] not found", params.CartCode)
 	}
 

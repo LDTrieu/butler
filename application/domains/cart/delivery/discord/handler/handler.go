@@ -28,7 +28,7 @@ func (h Handler) ResetCart(s *discordgo.Session, m *discordgo.MessageCreate) err
 	// find cart code in message
 	reg := regexp.MustCompile(`[0-9]+`)
 	cartCode := reg.FindString(m.Content)
-
+	logrus.Infof("Reset cart code: %s", cartCode)
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
 

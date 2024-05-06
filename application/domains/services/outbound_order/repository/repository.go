@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"butler/application/domains/services/packing/models"
+	"butler/application/domains/services/outbound_order/models"
 	"context"
 	"fmt"
 
@@ -22,20 +22,20 @@ func (r *repo) dbWithContext(ctx context.Context) *gorm.DB {
 	return r.DB.WithContext(ctx)
 }
 
-func (r *repo) GetById(ctx context.Context, id int64) (*models.Packing, error) {
-	record := &models.Packing{}
+func (r *repo) GetById(ctx context.Context, id int64) (*models.OutboundOrder, error) {
+	record := &models.OutboundOrder{}
 	result := r.dbWithContext(ctx).Limit(1).Find(&record, id)
 	if result.Error != nil {
 		return nil, result.Error
 	}
-	if record.CartId == 0 {
+	if record.OutboundOrderId == 0 {
 		return nil, nil
 	}
 	return record, nil
 }
 
-func (r *repo) GetOne(ctx context.Context, params *models.GetRequest) (*models.Packing, error) {
-	record := &models.Packing{}
+func (r *repo) GetOne(ctx context.Context, params *models.GetRequest) (*models.OutboundOrder, error) {
+	record := &models.OutboundOrder{}
 	query := r.dbWithContext(ctx).Model(record)
 	query = r.filter(query, params)
 	result := query.Limit(1).Find(&record)
@@ -48,9 +48,9 @@ func (r *repo) GetOne(ctx context.Context, params *models.GetRequest) (*models.P
 	return record, nil
 }
 
-func (r *repo) GetList(ctx context.Context, params *models.GetRequest) ([]*models.Packing, error) {
-	records := []*models.Packing{}
-	query := r.dbWithContext(ctx).Model(&models.Packing{})
+func (r *repo) GetList(ctx context.Context, params *models.GetRequest) ([]*models.OutboundOrder, error) {
+	records := []*models.OutboundOrder{}
+	query := r.dbWithContext(ctx).Model(&models.OutboundOrder{})
 	query = r.filter(query, params)
 
 	if err := query.Scan(&records).Error; err != nil {
@@ -60,8 +60,8 @@ func (r *repo) GetList(ctx context.Context, params *models.GetRequest) ([]*model
 	return records, nil
 }
 
-func (r *repo) Update(ctx context.Context, obj *models.Packing) (*models.Packing, error) {
-	if obj.PackingId == 0 {
+func (r *repo) Update(ctx context.Context, obj *models.OutboundOrder) (*models.OutboundOrder, error) {
+	if obj.OutboundOrderId == 0 {
 		return nil, fmt.Errorf("id is required")
 	}
 	result := r.dbWithContext(ctx).Updates(obj)
@@ -71,7 +71,7 @@ func (r *repo) Update(ctx context.Context, obj *models.Packing) (*models.Packing
 	return obj, nil
 }
 
-func (r *repo) UpdateMany(ctx context.Context, objs []*models.Packing) error {
+func (r *repo) UpdateMany(ctx context.Context, objs []*models.OutboundOrder) error {
 	tx := r.dbWithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -91,8 +91,8 @@ func (r *repo) UpdateMany(ctx context.Context, objs []*models.Packing) error {
 }
 
 func (r *repo) filter(query *gorm.DB, params *models.GetRequest) *gorm.DB {
-	if params.CartCode != "" {
-		query = query.Where("cart_code = ?", params.CartCode)
+	if params.SalesOrderNumber != "" {
+		query = query.Where("sales_order_number = ?", params.SalesOrderNumber)
 	}
 	if params.WarehouseId != 0 {
 		query = query.Where("warehouse_id = ?", params.WarehouseId)

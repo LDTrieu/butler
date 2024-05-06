@@ -92,10 +92,10 @@ func (r *repo) filter(query *gorm.DB, params *models.GetRequest) *gorm.DB {
 		query = query.Where("warehouse_id = ?", params.WarehouseId)
 	}
 	if params.StatusId != 0 {
-		query = query.Where("status_id = ?", params.StatusId)
+		query = query.Where("status = ?", params.StatusId)
 	}
 	if len(params.StatusIds) > 0 {
-		query = query.Where("status_ids in ?", params.StatusIds)
+		query = query.Where("status in ?", params.StatusIds)
 	}
 	return query
 }
