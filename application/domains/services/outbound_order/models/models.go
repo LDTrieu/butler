@@ -59,4 +59,6 @@ type GetRequest struct {
 	WarehouseId      int64
 	StatusId         int64
 	StatusIds        []int64
+	OrderType        string
+	SortField        string
 }

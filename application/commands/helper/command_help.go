@@ -40,9 +40,10 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				`,
 			},
 			{
-				Name: "pick liền đơn outbound",
+				Name: "chuẩn bị cho đơn outbound có thể được đi pick",
 				Value: `
-					đang phát triển
+					!readypick <mã source number>
+					Eample: !readypick 100224050700001
 				`,
 			},
 		},

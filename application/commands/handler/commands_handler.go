@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	cartHandler "butler/application/domains/cart/delivery/discord/handler"
+	pickHandler "butler/application/domains/pick/delivery/discord/handler"
 	makersuiteHandler "butler/application/domains/promt_ai/makersuite/handler"
 
 	"github.com/bwmarrin/discordgo"
@@ -19,17 +20,20 @@ type commandHandler struct {
 	discord           *discordgo.Session
 	makersuiteHandler makersuiteHandler.Handler
 	cartHandler       cartHandler.Handler
+	pickHandler       pickHandler.Handler
 }
 
 func NewCommandHandler(
 	discord *discordgo.Session,
 	makersuiteHandler makersuiteHandler.Handler,
 	cartHandler cartHandler.Handler,
+	pickHandler pickHandler.Handler,
 ) Handler {
 	return &commandHandler{
 		discord:           discord,
 		makersuiteHandler: makersuiteHandler,
 		cartHandler:       cartHandler,
+		pickHandler:       pickHandler,
 	}
 }
 
@@ -49,6 +53,8 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		err = c.makersuiteHandler.Ask(s, m)
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_CART):
 		err = c.cartHandler.ResetCart(s, m)
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_READY_OUTBOUND):
+		err = c.pickHandler.ReadyPickOutbound(s, m)
 	}
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())

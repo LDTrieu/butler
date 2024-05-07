@@ -3,6 +3,7 @@ package server
 import (
 	commandHandler "butler/application/commands/handler"
 	initCartHandler "butler/application/domains/cart/delivery/discord/handler"
+	initPickHandler "butler/application/domains/pick/delivery/discord/handler"
 	initPromtAiHandler "butler/application/domains/promt_ai/makersuite/handler"
 	initServices "butler/application/domains/services/init"
 	"context"
@@ -76,8 +77,11 @@ func (s *Server) run() {
 	// init cart handler
 	cartHandler := initCartHandler.InitHandler(services)
 
+	// init pick handler
+	pickHandler := initPickHandler.InitHandler(services)
+
 	// register handler for discord command
-	commandHandler := commandHandler.NewCommandHandler(s.discordBot, promtAiHandler, cartHandler)
+	commandHandler := commandHandler.NewCommandHandler(s.discordBot, promtAiHandler, cartHandler, pickHandler)
 	s.discordBot.AddHandler(commandHandler.GetCommandsHandler)
 
 	logrus.Infof("start server success")

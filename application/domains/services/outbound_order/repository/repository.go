@@ -38,6 +38,7 @@ func (r *repo) GetOne(ctx context.Context, params *models.GetRequest) (*models.O
 	record := &models.OutboundOrder{}
 	query := r.dbWithContext(ctx).Model(record)
 	query = r.filter(query, params)
+	query = r.sort(query, params)
 	result := query.Limit(1).Find(&record)
 	if result.Error != nil {
 		return nil, result.Error
@@ -52,7 +53,7 @@ func (r *repo) GetList(ctx context.Context, params *models.GetRequest) ([]*model
 	records := []*models.OutboundOrder{}
 	query := r.dbWithContext(ctx).Model(&models.OutboundOrder{})
 	query = r.filter(query, params)
-
+	query = r.sort(query, params)
 	if err := query.Scan(&records).Error; err != nil {
 		return nil, err
 	}
@@ -102,6 +103,18 @@ func (r *repo) filter(query *gorm.DB, params *models.GetRequest) *gorm.DB {
 	}
 	if len(params.StatusIds) > 0 {
 		query = query.Where("status_id in ?", params.StatusIds)
+	}
+	return query
+}
+
+func (r *repo) sort(query *gorm.DB, params *models.GetRequest) *gorm.DB {
+	if params.OrderType != "asc" {
+		params.OrderType = "desc"
+	}
+	if params.SortField != "" {
+		query = query.Order(params.SortField + " " + params.OrderType)
+	} else {
+		query = query.Order("outbound_order_id desc")
 	}
 	return query
 }
