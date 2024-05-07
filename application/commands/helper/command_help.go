@@ -32,6 +32,19 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				Example: @butler write hello world app in go
 				`,
 			},
+			{
+				Name: "Chuyển trạng thái giỏ về available",
+				Value: `
+					!resetcart <mã giỏ>
+					Example: !resetcart 160143
+				`,
+			},
+			{
+				Name: "pick liền đơn outbound",
+				Value: `
+					đang phát triển
+				`,
+			},
 		},
 	}
 }

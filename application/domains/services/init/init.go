@@ -3,6 +3,8 @@ package init
 import (
 	cartInit "butler/application/domains/services/cart/init"
 	cartSv "butler/application/domains/services/cart/service"
+	outboundOrderInit "butler/application/domains/services/outbound_order/init"
+	outboundOrderSv "butler/application/domains/services/outbound_order/service"
 	packingInit "butler/application/domains/services/packing/init"
 	packingSv "butler/application/domains/services/packing/service"
 	pickingGroupInit "butler/application/domains/services/picking_group/init"
@@ -15,10 +17,11 @@ import (
 )
 
 type Services struct {
-	PromtAiSv           promtAiSv.IService
-	CartService         cartSv.IService
-	PackingService      packingSv.IService
-	PickingGroupService pickingGroupSv.IService
+	PromtAiSv            promtAiSv.IService
+	CartService          cartSv.IService
+	PackingService       packingSv.IService
+	PickingGroupService  pickingGroupSv.IService
+	OutboundOrderService outboundOrderSv.IService
 }
 
 func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Services {
@@ -26,11 +29,13 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 	cart := cartInit.NewInit(db, cfg)
 	packing := packingInit.NewInit(db, cfg)
 	pickingGroup := pickingGroupInit.NewInit(db, cfg)
+	outboundOrder := outboundOrderInit.NewInit(db, cfg)
 
 	return &Services{
-		PromtAiSv:           initPromtAiSv,
-		CartService:         cart.Service,
-		PackingService:      packing.Service,
-		PickingGroupService: pickingGroup.Service,
+		PromtAiSv:            initPromtAiSv,
+		CartService:          cart.Service,
+		PackingService:       packing.Service,
+		PickingGroupService:  pickingGroup.Service,
+		OutboundOrderService: outboundOrder.Service,
 	}
 }
