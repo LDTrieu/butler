@@ -60,7 +60,7 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	if err != nil {
 		return err
 	}
-	if picking != nil && picking.PickingId != 0 {
+	if picking != nil && picking.PickingId == 0 {
 		return fmt.Errorf("outbound order [%s] không có picking", params.SalesOrderNumber)
 	}
 	if picking.StatusId != 1 {
@@ -89,7 +89,7 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		} else {
 			return fmt.Errorf("loại outbound order [%s] không hợp lệ: %s ", params.SalesOrderNumber, outbound.OutboundOrderType)
 		}
-		if item.StatusId != 1 {
+		if item.StatusId == 1 {
 			inventoryIds = append(inventoryIds, item.InventoryId)
 		}
 	}
