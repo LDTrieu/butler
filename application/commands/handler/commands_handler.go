@@ -53,7 +53,7 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		err = c.makersuiteHandler.Ask(s, m)
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_CART):
 		err = c.cartHandler.ResetCart(s, m)
-	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_READY_OUTBOUND):
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_READY_PICK):
 		err = c.pickHandler.ReadyPickOutbound(s, m)
 	}
 	if err != nil {
