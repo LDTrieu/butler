@@ -3,6 +3,7 @@ package delivery
 import (
 	"butler/application/commands/helper"
 	"butler/constants"
+	"fmt"
 	"strings"
 
 	cartHandler "butler/application/domains/cart/delivery/discord/handler"
@@ -10,6 +11,7 @@ import (
 	makersuiteHandler "butler/application/domains/promt_ai/makersuite/handler"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/sirupsen/logrus"
 )
 
 type Handler interface {
@@ -38,6 +40,13 @@ func NewCommandHandler(
 }
 
 func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	defer func() {
+		if err := recover(); err != nil {
+			logrus.Errorf("runtime error: %v", err)
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Something went wrong: %v", err))
+		}
+	}()
+
 	if m.Author.ID == s.State.User.ID {
 		return
 	}

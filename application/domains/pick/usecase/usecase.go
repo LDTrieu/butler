@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"butler/application/domains/pick/models"
+	binLocationModel "butler/application/domains/services/bin_location/models"
+	binLocationSv "butler/application/domains/services/bin_location/service"
 	initServices "butler/application/domains/services/init"
 	invenoryModel "butler/application/domains/services/inventory/models"
 	invenorySv "butler/application/domains/services/inventory/service"
@@ -22,6 +24,7 @@ type usecase struct {
 	pickingSv       pickingSv.IService
 	pickingItemSv   pickingItemSv.IService
 	invenorySv      invenorySv.IService
+	binLocationSv   binLocationSv.IService
 }
 
 func InitUseCase(
@@ -32,6 +35,7 @@ func InitUseCase(
 		pickingItemSv:   services.PickingItemService,
 		invenorySv:      services.InventoryService,
 		outboundOrderSv: services.OutboundOrderService,
+		binLocationSv:   services.BinLocationService,
 	}
 }
 
@@ -60,11 +64,27 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	if err != nil {
 		return err
 	}
-	if picking != nil && picking.PickingId == 0 {
+	if picking == nil || picking.PickingId == 0 {
 		return fmt.Errorf("outbound order [%s] không có picking", params.SalesOrderNumber)
 	}
 	if picking.StatusId != 1 {
 		return fmt.Errorf("picking [%s] không ở trạng thái được pick", picking.PickingNumber)
+	}
+
+
+	defaultLocation := DEFAULT_LOCATION
+	allowPickBinLocations, err := u.binLocationSv.GetList(ctx, &binLocationModel.GetRequest{
+		WarehouseId:      outbound.WarehouseId,
+		IsAllowPickOrder: "1",
+	})
+	if err != nil {
+		return err
+	}
+	if len(allowPickBinLocations) == 0 {
+		return fmt.Errorf("warehouse [%d] không có bin location di pick", outbound.WarehouseId)
+	}
+	if outbound.OutboundOrderType == "ORDER" {
+		defaultLocation = allowPickBinLocations[0].Code
 	}
 
 	pickingItems, err := u.pickingItemSv.GetList(ctx, &pickingItemModel.GetRequest{PickingId: picking.PickingId})
@@ -83,7 +103,7 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 				updateLocationPickingItemIds = append(updateLocationPickingItemIds, item.PickingItemId)
 			}
 		} else if outbound.OutboundOrderType == "ORDER" {
-			if !checkSuitableLocationForOrder(item.LocationDescription) {
+			if !checkSuitableLocationForOrder(item.LocationDescription, allowPickBinLocations) {
 				updateLocationPickingItemIds = append(updateLocationPickingItemIds, item.PickingItemId)
 			}
 		} else {
@@ -104,7 +124,7 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	for _, pi := range updateLocationPickingItemIds {
 		if _, err := u.pickingItemSv.Update(ctx, &pickingItemModel.PickingItem{
 			PickingItemId:       pi,
-			LocationDescription: DEFAULT_LOCATION,
+			LocationDescription: defaultLocation,
 		}); err != nil {
 			return err
 		}
@@ -132,9 +152,9 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 				updatedInventory.LocationDescription = DEFAULT_LOCATION
 			}
 		} else if outbound.OutboundOrderType == "ORDER" {
-			if !checkSuitableLocationForOrder(inv.LocationDescription) {
+			if !checkSuitableLocationForOrder(inv.LocationDescription, allowPickBinLocations) {
 				isUpdate = true
-				updatedInventory.LocationDescription = DEFAULT_LOCATION
+				updatedInventory.LocationDescription = defaultLocation
 			}
 		}
 
@@ -180,6 +200,11 @@ func checkSuitableLocationForIt(location string) bool {
 
 	return false
 }
-func checkSuitableLocationForOrder(location string) bool {
-	return strings.Contains(location, "AP")
+func checkSuitableLocationForOrder(location string, listSuitable []*binLocationModel.BinLocation) bool {
+	for _, item := range listSuitable {
+		if item.Code == location {
+			return true
+		}
+	}
+	return false
 }
