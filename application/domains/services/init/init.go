@@ -18,6 +18,8 @@ import (
 	pickingItemInit "butler/application/domains/services/picking_item/init"
 	pickingItemSv "butler/application/domains/services/picking_item/service"
 	promtAiSv "butler/application/domains/services/promt_ai/service"
+	warehouseInit "butler/application/domains/services/warehouse/init"
+	warehouseSv "butler/application/domains/services/warehouse/service"
 	"butler/config"
 
 	"github.com/google/generative-ai-go/genai"
@@ -34,6 +36,7 @@ type Services struct {
 	PickingItemService   pickingItemSv.IService
 	InventoryService     inventorySv.IService
 	BinLocationService   binLocationSv.IService
+	WarehouseService     warehouseSv.IService
 }
 
 func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Services {
@@ -46,6 +49,7 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 	pickingItem := pickingItemInit.NewInit(db, cfg)
 	inventory := inventoryInit.NewInit(db, cfg)
 	binLocation := binLocationInit.NewInit(db, cfg)
+	warehouse := warehouseInit.NewInit(db, cfg)
 
 	return &Services{
 		PromtAiSv:            initPromtAiSv,
@@ -57,5 +61,6 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 		PickingItemService:   pickingItem.Service,
 		InventoryService:     inventory.Service,
 		BinLocationService:   binLocation.Service,
+		WarehouseService:     warehouse.Service,
 	}
 }

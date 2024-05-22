@@ -71,7 +71,6 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		return fmt.Errorf("picking [%s] không ở trạng thái được pick", picking.PickingNumber)
 	}
 
-
 	defaultLocation := DEFAULT_LOCATION
 	allowPickBinLocations, err := u.binLocationSv.GetList(ctx, &binLocationModel.GetRequest{
 		WarehouseId:      outbound.WarehouseId,
@@ -81,7 +80,23 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		return err
 	}
 	if len(allowPickBinLocations) == 0 {
-		return fmt.Errorf("warehouse [%d] không có bin location di pick", outbound.WarehouseId)
+		newLoc, err := u.binLocationSv.Create(ctx, &binLocationModel.BinLocation{
+			WarehouseId:          outbound.WarehouseId,
+			Code:                 defaultLocation,
+			Zone:                 defaultLocation[:2],
+			Area:                 defaultLocation[3:5],
+			Aisle:                defaultLocation[6:8],
+			Rack:                 defaultLocation[9:11],
+			Shelf:                defaultLocation[12:14],
+			Bin:                  defaultLocation[15:17],
+			AllowPicklistedOrder: 1,
+			AllowPickOrder:       1,
+		})
+		if err != nil {
+			return err
+		}
+		allowPickBinLocations = append(allowPickBinLocations, newLoc)
+		// return fmt.Errorf("warehouse [%d] không có bin location di pick", outbound.WarehouseId)
 	}
 	if outbound.OutboundOrderType == "ORDER" {
 		defaultLocation = allowPickBinLocations[0].Code

@@ -72,6 +72,17 @@ func (r *repo) Update(ctx context.Context, obj *models.BinLocation) (*models.Bin
 	return obj, nil
 }
 
+func (r *repo) Create(ctx context.Context, obj *models.BinLocation) (*models.BinLocation, error) {
+	if obj.Code == "" {
+		return nil, fmt.Errorf("code is required")
+	}
+	result := r.dbWithContext(ctx).Create(obj)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return obj, nil
+}
+
 func (r *repo) UpdateMany(ctx context.Context, objs []*models.BinLocation) error {
 	tx := r.dbWithContext(ctx).Begin()
 	defer func() {

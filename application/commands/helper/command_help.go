@@ -46,6 +46,13 @@ func HelpEmbed() *discordgo.MessageEmbed {
 					Eample: !readypick 100224050700001
 				`,
 			},
+			{
+				Name: "cho kho xuất hiện để đi pick ở vị trí kho 555",
+				Value: `
+					!showwarehouse <tên kho>
+					Eample: !showwarehouse SHOP - 555
+				`,
+			},
 		},
 	}
 }

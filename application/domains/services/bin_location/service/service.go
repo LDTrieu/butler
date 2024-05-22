@@ -58,3 +58,13 @@ func (s *service) Update(ctx context.Context, obj *models.BinLocation) (*models.
 
 	return record, nil
 }
+
+func (s *service) Create(ctx context.Context, obj *models.BinLocation) (*models.BinLocation, error) {
+	record, err := s.repo.Create(ctx, obj)
+	if err != nil {
+		logrus.Errorf("error when create bin location: %v", err)
+		return nil, fmt.Errorf("error when create bin location: %v", err)
+	}
+
+	return record, nil
+}
