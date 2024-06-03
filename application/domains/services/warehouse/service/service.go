@@ -58,3 +58,16 @@ func (s *service) Update(ctx context.Context, obj *models.Warehouse) (*models.Wa
 
 	return record, nil
 }
+
+func (s *service) UpdateWithMap(ctx context.Context, warehouseId int64, obj map[string]any, specifyCol ...string) error {
+	if warehouseId == 0 {
+		return fmt.Errorf("warehouse id is required")
+	}
+	err := s.repo.UpdateWithMap(ctx, warehouseId, obj, specifyCol)
+	if err != nil {
+		logrus.Errorf("error when update warehouse: %v", err)
+		return fmt.Errorf("error when update warehouse: %v", err)
+	}
+
+	return nil
+}

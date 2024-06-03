@@ -71,6 +71,21 @@ func (r *repo) Update(ctx context.Context, obj *models.Warehouse) (*models.Wareh
 	return obj, nil
 }
 
+func (r *repo) UpdateWithMap(ctx context.Context, warehouseId int64, obj map[string]any, specifyCol []string) error {
+	if warehouseId == 0 {
+		return fmt.Errorf("id is required")
+	}
+	query := r.dbWithContext(ctx).Model(&models.Warehouse{}).Where("warehouse_id = ?", warehouseId)
+	if len(specifyCol) > 0 {
+		query = query.Select(specifyCol)
+	}
+	result := query.Updates(obj)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}
+
 func (r *repo) UpdateMany(ctx context.Context, objs []*models.Warehouse) error {
 	tx := r.dbWithContext(ctx).Begin()
 	defer func() {

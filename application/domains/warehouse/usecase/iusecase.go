@@ -7,4 +7,5 @@ import (
 
 type IUseCase interface {
 	ShowWarehouse(ctx context.Context, params *models.ShowWarehouseRequest) error
+	ResetShowWarehouse(ctx context.Context) error
 }

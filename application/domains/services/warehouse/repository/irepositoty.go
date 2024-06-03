@@ -10,4 +10,5 @@ type IRepository interface {
 	GetById(ctx context.Context, id int64) (*models.Warehouse, error)
 	GetOne(ctx context.Context, params *models.GetRequest) (*models.Warehouse, error)
 	GetList(ctx context.Context, params *models.GetRequest) ([]*models.Warehouse, error)
+	UpdateWithMap(ctx context.Context, warehouseId int64, obj map[string]any, specifyCol []string) error
 }

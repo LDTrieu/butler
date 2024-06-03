@@ -39,3 +39,15 @@ func (h Handler) ShowWarehouse(s *discordgo.Session, m *discordgo.MessageCreate)
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Warehouse [%s] is ready!", warehouseName))
 	return nil
 }
+
+func (h Handler) ResetShowWarehouse(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	defer cancel()
+
+	if err := h.usecase.ResetShowWarehouse(ctx); err != nil {
+		logrus.Errorf("Failed to reset show warehouse: %v", err)
+		return err
+	}
+	s.ChannelMessageSend(m.ChannelID, "reset show warehouse success!")
+	return nil
+}

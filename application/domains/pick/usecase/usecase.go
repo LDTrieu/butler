@@ -150,7 +150,7 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	if time.Until(outbound.CreatedAt).Abs().Minutes() < 10 {
 		if _, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
 			OutboundOrderId: outbound.OutboundOrderId,
-			UpdatedAt:       time.Now().Add(-10 * time.Minute),
+			CreatedAt:       outbound.CreatedAt.Add(-10 * time.Minute),
 		}); err != nil {
 			return err
 		}

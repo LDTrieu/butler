@@ -47,10 +47,10 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				`,
 			},
 			{
-				Name: "cho kho xuất hiện để đi pick ở vị trí kho 555",
+				Name: "cho kho xuất hiện để đi pick ở vị trí kho 29 HOANG VIET",
 				Value: `
 					!showwarehouse <tên kho>
-					Eample: !showwarehouse SHOP - 555
+					Eample: !showwarehouse SHOP - 29
 				`,
 			},
 		},
