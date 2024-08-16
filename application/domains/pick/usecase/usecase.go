@@ -13,6 +13,7 @@ import (
 	pickingSv "butler/application/domains/services/picking/service"
 	pickingItemModel "butler/application/domains/services/picking_item/models"
 	pickingItemSv "butler/application/domains/services/picking_item/service"
+	"butler/application/lib"
 	"context"
 	"fmt"
 	"strings"
@@ -20,6 +21,7 @@ import (
 )
 
 type usecase struct {
+	lib             *lib.Lib
 	outboundOrderSv outboundOrderSv.IService
 	pickingSv       pickingSv.IService
 	pickingItemSv   pickingItemSv.IService
@@ -28,9 +30,11 @@ type usecase struct {
 }
 
 func InitUseCase(
+	lib *lib.Lib,
 	services *initServices.Services,
 ) IUseCase {
 	return &usecase{
+		lib:             lib,
 		pickingSv:       services.PickingService,
 		pickingItemSv:   services.PickingItemService,
 		invenorySv:      services.InventoryService,
@@ -100,6 +104,12 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	}
 	if outbound.OutboundOrderType == "ORDER" {
 		defaultLocation = allowPickBinLocations[0].Code
+		for _, loc := range allowPickBinLocations {
+			if strings.Contains(loc.Code, "AP") {
+				defaultLocation = loc.Code
+				break
+			}
+		}
 	}
 
 	pickingItems, err := u.pickingItemSv.GetList(ctx, &pickingItemModel.GetRequest{PickingId: picking.PickingId})

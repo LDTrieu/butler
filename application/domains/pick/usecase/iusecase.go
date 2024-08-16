@@ -7,4 +7,5 @@ import (
 
 type IUseCase interface {
 	ReadyPickOutbound(ctx context.Context, params *models.ReadyPickOutboundRequest) error
+	Pick(ctx context.Context, params *models.PickRequest) error
 }

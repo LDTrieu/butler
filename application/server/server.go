@@ -7,15 +7,14 @@ import (
 	initPromtAiHandler "butler/application/domains/promt_ai/makersuite/handler"
 	initServices "butler/application/domains/services/init"
 	initWarehouseHandler "butler/application/domains/warehouse/delivery/discord/handler"
+	"butler/application/lib"
 	"context"
 
 	"butler/config"
-	"butler/pkg/sql/mysql"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/generative-ai-go/genai"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 
 	"google.golang.org/api/option"
 )
@@ -23,8 +22,8 @@ import (
 type Server struct {
 	cfg         *config.Config
 	discordBot  *discordgo.Session
-	db          *gorm.DB
 	genaiClient *genai.Client
+	lib         *lib.Lib
 }
 
 func NewServer(cfg *config.Config) *Server {
@@ -35,11 +34,6 @@ func NewServer(cfg *config.Config) *Server {
 	}
 	dg.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
 
-	db, err := mysql.InitConnection(cfg)
-	if err != nil {
-		logrus.Fatalf("connect database err: %v", err)
-	}
-
 	// genai client
 	genaiClient, err := genai.NewClient(context.Background(), option.WithAPIKey(cfg.Makersuite.ApiKey))
 	if err != nil {
@@ -49,8 +43,8 @@ func NewServer(cfg *config.Config) *Server {
 	return &Server{
 		cfg:         cfg,
 		discordBot:  dg,
-		db:          db,
 		genaiClient: genaiClient,
+		lib:         lib.InitLib(cfg),
 	}
 }
 
@@ -70,7 +64,7 @@ func (s *Server) run() {
 		return
 	}
 	// init services
-	services := initServices.InitService(s.cfg, s.db, s.genaiClient)
+	services := initServices.InitService(s.cfg, s.lib.Db, s.genaiClient)
 
 	// init external
 	promtAiHandler := initPromtAiHandler.InitHandler(s.cfg, services)
@@ -79,14 +73,15 @@ func (s *Server) run() {
 	cartHandler := initCartHandler.InitHandler(services)
 
 	// init pick handler
-	pickHandler := initPickHandler.InitHandler(services)
+	pickHandler := initPickHandler.InitHandler(s.lib, services)
 
 	// init warehouse handler
-	warehouseHandler := initWarehouseHandler.InitHandler(services)
+	warehouseHandler := initWarehouseHandler.InitHandler(s.lib, services)
 
 	// register handler for discord command
-	commandHandler := commandHandler.NewCommandHandler(s.discordBot, promtAiHandler, cartHandler, pickHandler, warehouseHandler)
+	commandHandler := commandHandler.NewCommandHandler(s.lib, s.discordBot, promtAiHandler, cartHandler, pickHandler, warehouseHandler)
 	s.discordBot.AddHandler(commandHandler.GetCommandsHandler)
+	s.discordBot.AddHandler(commandHandler.GetReactionHandler)
 
 	logrus.Infof("start server success")
 }

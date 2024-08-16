@@ -4,6 +4,7 @@ import (
 	initServices "butler/application/domains/services/init"
 	"butler/application/domains/warehouse/models"
 	"butler/application/domains/warehouse/usecase"
+	"butler/application/lib"
 	"context"
 	"fmt"
 	"strings"
@@ -14,12 +15,14 @@ import (
 )
 
 type Handler struct {
+	lib     *lib.Lib
 	usecase usecase.IUseCase
 }
 
-func InitHandler(services *initServices.Services) Handler {
-	usecase := usecase.InitUseCase(services)
+func InitHandler(lib *lib.Lib, services *initServices.Services) Handler {
+	usecase := usecase.InitUseCase(lib, services)
 	return Handler{
+		lib,
 		usecase,
 	}
 }

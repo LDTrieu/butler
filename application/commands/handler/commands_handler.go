@@ -2,11 +2,13 @@ package delivery
 
 import (
 	"butler/application/commands/helper"
+	"butler/application/lib"
 	"butler/constants"
 	"fmt"
 	"strings"
 
 	cartHandler "butler/application/domains/cart/delivery/discord/handler"
+	kpiHandler "butler/application/domains/kpi/delivery/discord/handler"
 	pickHandler "butler/application/domains/pick/delivery/discord/handler"
 	makersuiteHandler "butler/application/domains/promt_ai/makersuite/handler"
 	warehouseHandler "butler/application/domains/warehouse/delivery/discord/handler"
@@ -17,17 +19,21 @@ import (
 
 type Handler interface {
 	GetCommandsHandler(*discordgo.Session, *discordgo.MessageCreate)
+	GetReactionHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd)
 }
 
 type commandHandler struct {
+	lib               *lib.Lib
 	discord           *discordgo.Session
 	makersuiteHandler makersuiteHandler.Handler
 	cartHandler       cartHandler.Handler
 	pickHandler       pickHandler.Handler
 	whHandler         warehouseHandler.Handler
+	kpiHandler        kpiHandler.Handler
 }
 
 func NewCommandHandler(
+	lib *lib.Lib,
 	discord *discordgo.Session,
 	makersuiteHandler makersuiteHandler.Handler,
 	cartHandler cartHandler.Handler,
@@ -40,6 +46,7 @@ func NewCommandHandler(
 		cartHandler:       cartHandler,
 		pickHandler:       pickHandler,
 		whHandler:         whHandler,
+		lib:               lib,
 	}
 }
 
@@ -57,6 +64,7 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 	if !strings.HasPrefix(m.Content, constants.BOT_COMMAND_PREFIX) && !helper.CheckMention(m, s.State.User) {
 		return
 	}
+	logrus.Debugf("member roles: %v", m.Member.Roles)
 
 	var err error
 	switch {
@@ -64,16 +72,38 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		err = helper.HandleHelpCommand(s, m)
 	case helper.CheckMention(m, s.State.User):
 		err = c.makersuiteHandler.Ask(s, m)
+
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_CART):
 		err = c.cartHandler.ResetCart(s, m)
+
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_READY_PICK):
 		err = c.pickHandler.ReadyPickOutbound(s, m)
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_PICK):
+		err = c.pickHandler.PreparePick(s, m)
+
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_SHOW_WAREHOUSE):
 		err = c.whHandler.ShowWarehouse(s, m)
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_SHOW_WAREHOUSE):
 		err = c.whHandler.ResetShowWarehouse(s, m)
+
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_COUNT_KPI),
+		helper.CheckPrefixCommand(m.Content, constants.COMMAND_COUNT_PROD_KPI):
+		err = c.kpiHandler.CountKpi(s, m)
 	}
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())
 	}
 }
+
+// func CheckPermission(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+// 	user, err := s.State.Guild(m.GuildID)
+// 	if err != nil {
+// 		logrus.Errorf("Failed get guild: %v", err)
+// 		return false
+// 	}
+
+// 	if m.Author.ID == s.State.User.ID {
+// 		return false
+// 	}
+// 	return true
+// }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"bitbucket.org/hasaki-tech/zeus/config"
 	"github.com/spf13/viper"
 )
 
@@ -14,6 +15,9 @@ type Config struct {
 	DiscordBot DiscordBot
 	Mysql      Mysql
 	Makersuite MakersuiteConfig
+	Redis      RedisConfig
+	KafkaQc    config.KafkaConfig
+	KafkaProd  config.KafkaConfig
 }
 
 type Butler struct {
@@ -29,6 +33,18 @@ type Mysql struct {
 	Host     string
 	Port     int64
 	DBName   string
+}
+
+type RedisConfig struct {
+	RedisAddr      string
+	RedisPassword  string
+	RedisDB        string
+	RedisDefaultdb string
+	MinIdleConns   int
+	PoolSize       int
+	PoolTimeout    int
+	Password       string
+	DB             int
 }
 
 type MakersuiteConfig struct {

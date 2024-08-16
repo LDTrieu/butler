@@ -5,20 +5,26 @@ import (
 	whModels "butler/application/domains/services/warehouse/models"
 	whSv "butler/application/domains/services/warehouse/service"
 	"butler/application/domains/warehouse/models"
+	"butler/application/lib"
 	"context"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 type usecase struct {
+	lib  *lib.Lib
 	whSv whSv.IService
 }
 
 func InitUseCase(
+	lib *lib.Lib,
 	services *initServices.Services,
 ) IUseCase {
 	return &usecase{
+		lib:  lib,
 		whSv: services.WarehouseService,
 	}
 }
@@ -49,13 +55,13 @@ func (u *usecase) ShowWarehouse(ctx context.Context, params *models.ShowWarehous
 		return fmt.Errorf("có nhiều kho có tên giống [%s], vui lòng nhập đúng tên: \n - %s", params.WarehouseName, strings.Join(warehouseNames, "\n- "))
 	}
 	warehouse := suggestedWarehouses[0]
-	if warehouse.LocationId == LOCATION_ID_29_HOANG_VIET {
-		return fmt.Errorf("kho [%s] đã có thể đi pick ở vị trí kho 29 hoang viet", warehouse.WarehouseName)
+	if warehouse.LocationId == LOCATION_ID_555 {
+		return fmt.Errorf("kho [%s] đã có thể đi pick ở vị trí kho 555 3/2", warehouse.WarehouseName)
 	}
 
 	if _, err := u.whSv.Update(ctx, &whModels.Warehouse{
 		WarehouseId: warehouse.WarehouseId,
-		LocationId:  LOCATION_ID_29_HOANG_VIET,
+		LocationId:  LOCATION_ID_555,
 		Description: fmt.Sprintf("location-%d", warehouse.LocationId),
 	}); err != nil {
 		return err
@@ -87,5 +93,20 @@ func (u *usecase) ResetShowWarehouse(ctx context.Context) error {
 			}
 		}
 	}
+
+	// reset redis
+	currentIpAddr := "14.241.249.24"
+
+	key := fmt.Sprintf("ipaddress:warehouse:%s", currentIpAddr)
+	if value, err := u.lib.Rdb.Get(ctx, key).Result(); err == nil {
+		if value == "" {
+			return nil
+		}
+
+		if _, err := u.lib.Rdb.Del(ctx, key).Result(); err != nil {
+			logrus.Errorf("Failed to delete key %s: %v", key, err)
+		}
+	}
+
 	return nil
 }

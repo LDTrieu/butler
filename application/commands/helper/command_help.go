@@ -14,6 +14,7 @@ func HandleHelpCommand(s *discordgo.Session, m *discordgo.MessageCreate) error {
 		logrus.Errorf("Error handle help command %v", err)
 		return err
 	}
+	// s.MessageReactionAdd(m.ChannelID, helpMes.ID, constants.EMOJI_NUMBER_ONE)
 	return nil
 }
 
@@ -51,6 +52,23 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				Value: `
 					!showwarehouse <tên kho>
 					Eample: !showwarehouse SHOP - 29
+				`,
+			},
+			{
+				Name: "reset vị trí của các kho bị đổi bởi lệnh !showwarehouse",
+				Value: `
+					!resetshowwarehouse
+					Eample: !resetshowwarehouse
+				`,
+			},
+			{
+				Name: "tính kpi",
+				Value: `
+					!kpi <ngày>
+					Example: !kpi 2024-07-25
+							 !kpi 2024-07
+							 !prod kpi 2024-07
+							 !prod kpi 2024-07-25
 				`,
 			},
 		},
