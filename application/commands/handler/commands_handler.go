@@ -75,6 +75,8 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_CART):
 		err = c.cartHandler.ResetCart(s, m)
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_CART_BY_USER):
+		err = c.cartHandler.ResetCartByUser(s, m)
 
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_READY_PICK):
 		err = c.pickHandler.ReadyPickOutbound(s, m)

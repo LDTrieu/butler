@@ -37,7 +37,7 @@ func NewServer(cfg *config.Config) *Server {
 	// genai client
 	genaiClient, err := genai.NewClient(context.Background(), option.WithAPIKey(cfg.Makersuite.ApiKey))
 	if err != nil {
-		logrus.Fatalf("init genai client err: %s", err)
+		//logrus.Fatalf("init genai client err: %s", err)
 	}
 
 	return &Server{

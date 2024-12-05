@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"butler/application/domains/cart/models"
+	cartMappingModels "butler/application/domains/services/bin_location_cart_mapping/models"
+	cartMappingSv "butler/application/domains/services/bin_location_cart_mapping/service"
 	cartModels "butler/application/domains/services/cart/models"
 	cartSv "butler/application/domains/services/cart/service"
 	initServices "butler/application/domains/services/init"
@@ -16,6 +18,7 @@ import (
 
 type usecase struct {
 	cartSv         cartSv.IService
+	cartMappingSv  cartMappingSv.IService
 	pickingGroupSv pgSv.IService
 	packingSv      packingSv.IService
 }
@@ -25,6 +28,7 @@ func InitUseCase(
 ) IUseCase {
 	return &usecase{
 		cartSv:         services.CartService,
+		cartMappingSv:  services.CartMappingService,
 		pickingGroupSv: services.PickingGroupService,
 		packingSv:      services.PackingService,
 	}
@@ -38,12 +42,17 @@ func (u *usecase) ResetCart(ctx context.Context, params *models.ResetCartRequest
 	if cart == nil || cart.CartId == 0 {
 		return fmt.Errorf("cart with code [%s] not found", params.CartCode)
 	}
+	cartMapping, err := u.cartMappingSv.GetOne(ctx, &cartMappingModels.GetRequest{
+		CartCode: cart.CartCode,
+		UsedBy:   cart.UpdatedBy,
+	})
+	if err != nil {
+		return err
+	}
 
 	pickingGroups, err := u.pickingGroupSv.GetList(ctx, &pgModels.GetRequest{
-		CartCode: cart.CartCode,
-		StatusIds: []int64{
-			constants.PICKING_GROUP_STATUS_NEW, constants.PICKING_GROUP_STATUS_PICKING,
-		}},
+		CartCode:  cart.CartCode,
+		StatusIds: []int64{constants.PICKING_GROUP_STATUS_NEW, constants.PICKING_GROUP_STATUS_PICKING}},
 	)
 	if err != nil {
 		return err
@@ -66,6 +75,25 @@ func (u *usecase) ResetCart(ctx context.Context, params *models.ResetCartRequest
 	if err != nil {
 		return err
 	}
+	if cartMapping != nil {
+		_, err = u.cartMappingSv.Update(ctx, &cartMappingModels.BinLocationCartMapping{
+			Id:     cartMapping.Id,
+			Status: constants.BIN_LOCATION_CART_MAPPING_STATUS_USING,
+		})
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err := u.cartMappingSv.Create(ctx, &cartMappingModels.BinLocationCartMapping{
+			CartCode: cart.CartCode,
+			UsedBy:   cart.UpdatedBy,
+			Status:   constants.BIN_LOCATION_CART_MAPPING_STATUS_USING,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
 	for _, pg := range pickingGroups {
 		_, err := u.pickingGroupSv.Update(ctx, &pgModels.PickingGroup{
 			PickingGroupId: pg.PickingGroupId,
@@ -86,4 +114,84 @@ func (u *usecase) ResetCart(ctx context.Context, params *models.ResetCartRequest
 	}
 
 	return nil
+}
+
+func (u *usecase) ResetCartByUser(ctx context.Context, param *models.ResetCartByUserRequest) (string, error) {
+	cart, err := u.cartSv.GetOne(ctx, &cartModels.GetRequest{UpdatedBy: param.UserId})
+	if err != nil {
+		return "", err
+	}
+	if cart == nil || cart.CartId == 0 {
+		return "", fmt.Errorf("cart using by user_id [%d] not found", param.UserId)
+	}
+	cartMapping, err := u.cartMappingSv.GetOne(ctx, &cartMappingModels.GetRequest{
+		CartCode: cart.CartCode,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	pickingGroups, err := u.pickingGroupSv.GetList(ctx, &pgModels.GetRequest{
+		CartCode:  cart.CartCode,
+		StatusIds: []int64{constants.PICKING_GROUP_STATUS_NEW, constants.PICKING_GROUP_STATUS_PICKING}},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	packings, err := u.packingSv.GetList(ctx, &packingModels.GetRequest{
+		CartCode: cart.CartCode,
+		StatusIds: []int64{
+			constants.PACKING_STATUS_OPEN, constants.PACKING_STATUS_PACKING,
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
+	_, err = u.cartSv.Update(ctx, &cartModels.Cart{
+		CartId: cart.CartId,
+		Status: constants.CART_STATUS_AVAILABLE,
+	})
+	if err != nil {
+		return "", err
+	}
+	if cartMapping != nil {
+		_, err = u.cartMappingSv.Update(ctx, &cartMappingModels.BinLocationCartMapping{
+			Id:     cartMapping.Id,
+			Status: constants.BIN_LOCATION_CART_MAPPING_STATUS_USING,
+		})
+		if err != nil {
+			return "", err
+		}
+	} else {
+		_, err := u.cartMappingSv.Create(ctx, &cartMappingModels.BinLocationCartMapping{
+			CartCode: cart.CartCode,
+			UsedBy:   cart.UpdatedBy,
+			Status:   constants.BIN_LOCATION_CART_MAPPING_STATUS_USING,
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+	for _, pg := range pickingGroups {
+		_, err := u.pickingGroupSv.Update(ctx, &pgModels.PickingGroup{
+			PickingGroupId: pg.PickingGroupId,
+			Status:         constants.PICKING_GROUP_STATUS_CANCELED,
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+	for _, packing := range packings {
+		_, err := u.packingSv.Update(ctx, &packingModels.Packing{
+			PackingId: packing.PackingId,
+			StatusId:  constants.PACKING_STATUS_CANCELED,
+		})
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return cart.CartCode, nil
 }

@@ -3,6 +3,8 @@ package init
 import (
 	binLocationInit "butler/application/domains/services/bin_location/init"
 	binLocationSv "butler/application/domains/services/bin_location/service"
+	cartMappingInit "butler/application/domains/services/bin_location_cart_mapping/init"
+	cartMappingSv "butler/application/domains/services/bin_location_cart_mapping/service"
 	cartInit "butler/application/domains/services/cart/init"
 	cartSv "butler/application/domains/services/cart/service"
 	inventoryInit "butler/application/domains/services/inventory/init"
@@ -29,6 +31,7 @@ import (
 type Services struct {
 	PromtAiSv            promtAiSv.IService
 	CartService          cartSv.IService
+	CartMappingService   cartMappingSv.IService
 	PackingService       packingSv.IService
 	PickingGroupService  pickingGroupSv.IService
 	OutboundOrderService outboundOrderSv.IService
@@ -42,6 +45,7 @@ type Services struct {
 func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Services {
 	initPromtAiSv := promtAiSv.InitService(cfg, genaiClient)
 	cart := cartInit.NewInit(db, cfg)
+	cartMapping := cartMappingInit.NewInit(db, cfg)
 	packing := packingInit.NewInit(db, cfg)
 	pickingGroup := pickingGroupInit.NewInit(db, cfg)
 	outboundOrder := outboundOrderInit.NewInit(db, cfg)
@@ -54,6 +58,7 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 	return &Services{
 		PromtAiSv:            initPromtAiSv,
 		CartService:          cart.Service,
+		CartMappingService:   cartMapping.Service,
 		PackingService:       packing.Service,
 		PickingGroupService:  pickingGroup.Service,
 		OutboundOrderService: outboundOrder.Service,
