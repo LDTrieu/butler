@@ -14,6 +14,7 @@ import (
 	pickingItemModel "butler/application/domains/services/picking_item/models"
 	pickingItemSv "butler/application/domains/services/picking_item/service"
 	"butler/application/lib"
+	"butler/constants"
 	"context"
 	"fmt"
 	"strings"
@@ -61,7 +62,9 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		if outbound.Config == 1 {
 			return fmt.Errorf("outbound order [%s] không đủ hàng đi pick", params.SalesOrderNumber)
 		}
-		return fmt.Errorf("outbound order [%s] không đủ điều kiện pick", params.SalesOrderNumber)
+		if outbound.Config&constants.OUTBOUND_ORDER_CONFIG_DESIGNATE_DATE == 0 {
+			return fmt.Errorf("outbound order [%s] không đủ điều kiện pick", params.SalesOrderNumber)
+		}
 	}
 
 	picking, err := u.pickingSv.GetOne(ctx, &pickingModel.GetRequest{OutboundOrderId: outbound.OutboundOrderId})
