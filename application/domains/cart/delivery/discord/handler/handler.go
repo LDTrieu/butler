@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -69,10 +70,26 @@ func (h Handler) ResetCartByUserId(s *discordgo.Session, m *discordgo.MessageCre
 }
 
 func (h Handler) ResetCartByEmail(s *discordgo.Session, m *discordgo.MessageCreate) error {
-	// find email in message
-	reg := regexp.MustCompile(`[0-9]+`)
-	email := reg.FindString(m.Content)
-	logrus.Infof("Reset cart vy email: %s", email)
+	parts := strings.Fields(m.Content)
+	if len(parts) < 2 {
+		return fmt.Errorf("Invalid command format. Usage: !reset_cart_email <username/email>")
+	}
+	input := parts[1]
+
+	var email string
+	emailReg := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	if emailReg.MatchString(input) {
+		email = input
+	} else {
+		usernameReg := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+$`)
+		if usernameReg.MatchString(input) {
+			email = input + "@hasaki.vn"
+		} else {
+			return fmt.Errorf("Invalid username/email format")
+		}
+	}
+
+	logrus.Infof("Reset cart by email: %s", email)
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
 
