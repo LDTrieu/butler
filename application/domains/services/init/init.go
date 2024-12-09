@@ -20,6 +20,8 @@ import (
 	pickingItemInit "butler/application/domains/services/picking_item/init"
 	pickingItemSv "butler/application/domains/services/picking_item/service"
 	promtAiSv "butler/application/domains/services/promt_ai/service"
+	userInit "butler/application/domains/services/user/init"
+	userSv "butler/application/domains/services/user/service"
 	warehouseInit "butler/application/domains/services/warehouse/init"
 	warehouseSv "butler/application/domains/services/warehouse/service"
 	"butler/config"
@@ -40,6 +42,7 @@ type Services struct {
 	InventoryService     inventorySv.IService
 	BinLocationService   binLocationSv.IService
 	WarehouseService     warehouseSv.IService
+	UserService          userSv.IService
 }
 
 func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Services {
@@ -54,7 +57,7 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 	inventory := inventoryInit.NewInit(db, cfg)
 	binLocation := binLocationInit.NewInit(db, cfg)
 	warehouse := warehouseInit.NewInit(db, cfg)
-
+	user := userInit.NewInit(db, cfg)
 	return &Services{
 		PromtAiSv:            initPromtAiSv,
 		CartService:          cart.Service,
@@ -67,5 +70,6 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 		InventoryService:     inventory.Service,
 		BinLocationService:   binLocation.Service,
 		WarehouseService:     warehouse.Service,
+		UserService:          user.Service,
 	}
 }

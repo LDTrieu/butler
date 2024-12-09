@@ -43,7 +43,7 @@ func (h Handler) ResetCart(s *discordgo.Session, m *discordgo.MessageCreate) err
 	return nil
 }
 
-func (h Handler) ResetCartByUser(s *discordgo.Session, m *discordgo.MessageCreate) error {
+func (h Handler) ResetCartByUserId(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	// find user_id in message
 	reg := regexp.MustCompile(`[0-9]+`)
 	userIdStr := reg.FindString(m.Content)
@@ -57,7 +57,7 @@ func (h Handler) ResetCartByUser(s *discordgo.Session, m *discordgo.MessageCreat
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
 
-	cartCode, err := h.usecase.ResetCartByUser(ctx, &models.ResetCartByUserRequest{
+	cartCode, err := h.usecase.ResetCartByUserId(ctx, &models.ResetCartByUserIdRequest{
 		UserId: userId,
 	})
 	if err != nil {
@@ -65,5 +65,24 @@ func (h Handler) ResetCartByUser(s *discordgo.Session, m *discordgo.MessageCreat
 		return err
 	}
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Cart [%s] - User [%s] has been reset!", cartCode, userIdStr))
+	return nil
+}
+
+func (h Handler) ResetCartByEmail(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	// find email in message
+	reg := regexp.MustCompile(`[0-9]+`)
+	email := reg.FindString(m.Content)
+	logrus.Infof("Reset cart vy email: %s", email)
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	defer cancel()
+
+	cartCode, err := h.usecase.ResetCartByEmail(ctx, &models.ResetCartByEmailRequest{
+		Email: email,
+	})
+	if err != nil {
+		logrus.Errorf("Failed to reset cart mapping: %v", err)
+		return err
+	}
+	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Cart [%s] - Email [%s] has been reset!", cartCode, email))
 	return nil
 }

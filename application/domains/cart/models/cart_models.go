@@ -3,6 +3,10 @@ package models
 type ResetCartRequest struct {
 	CartCode string
 }
-type ResetCartByUserRequest struct {
+type ResetCartByUserIdRequest struct {
 	UserId int64
+}
+
+type ResetCartByEmailRequest struct {
+	Email string
 }
