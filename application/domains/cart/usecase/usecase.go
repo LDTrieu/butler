@@ -219,16 +219,14 @@ func (u *usecase) ResetCartByEmail(ctx context.Context, param *models.ResetCartB
 	}
 	userId := user.Id
 
-	cart, err := u.cartSv.GetOne(ctx, &cartModels.GetRequest{UpdatedBy: userId})
+	cart, err := u.cartSv.GetOne(ctx, &cartModels.GetRequest{UpdatedBy: userId, Status: constants.CART_STATUS_AVAILABLE})
 	if err != nil {
 		return "", err
 	}
 	if cart == nil || cart.CartId == 0 {
 		return "", fmt.Errorf("cart using by user_id [%d] not found", userId)
 	}
-	cartMapping, err := u.cartMappingSv.GetOne(ctx, &cartMappingModels.GetRequest{
-		CartCode: cart.CartCode,
-	})
+	cartMapping, err := u.cartMappingSv.GetOne(ctx, &cartMappingModels.GetRequest{CartCode: cart.CartCode, Status: constants.BIN_LOCATION_CART_MAPPING_STATUS_USING})
 	if err != nil {
 		return "", err
 	}
