@@ -251,7 +251,7 @@ func (u *usecase) ResetCartByEmail(ctx context.Context, param *models.ResetCartB
 
 	_, err = u.cartSv.Update(ctx, &cartModels.Cart{
 		CartId: cart.CartId,
-		Status: constants.CART_STATUS_AVAILABLE,
+		Status: constants.CART_STATUS_INACTIVE,
 	})
 	if err != nil {
 		return "", err
