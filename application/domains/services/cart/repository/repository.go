@@ -103,6 +103,9 @@ func (r *repo) filter(query *gorm.DB, params *models.GetRequest) *gorm.DB {
 	if params.Status != 0 {
 		query = query.Where("status = ?", params.Status)
 	}
+	if len(params.Statuses) != 0 {
+		query = query.Where("status in (?)", params.Statuses)
+	}
 	if params.UpdatedBy != 0 {
 		query = query.Where("updated_by = ?", params.UpdatedBy)
 	}
