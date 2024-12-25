@@ -39,7 +39,7 @@ func (u *usecase) ShowWarehouse(ctx context.Context, params *models.ShowWarehous
 	warehouseNameKeyword := strings.ToUpper(params.WarehouseName)
 
 	suggestedWarehouses, err := u.whSv.GetList(ctx, &whModels.GetRequest{
-		WarehouseNameSimilar: warehouseNameKeyword,
+		WarehouseName: warehouseNameKeyword,
 	})
 	if err != nil {
 		return err
