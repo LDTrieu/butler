@@ -14,6 +14,7 @@ const (
 	COMMAND_PICK                  = "pick"
 	COMMAND_COUNT_KPI             = "kpi"
 	COMMAND_COUNT_PROD_KPI        = "prod kpi"
+	COMMAND_PICK_PACK             = "runpickpack"
 )
 
 const USER_ID_REGEX = `<@(\d+)>`
