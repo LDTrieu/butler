@@ -30,17 +30,18 @@ func InitHandler(lib *lib.Lib, cfg *config.Config, services *initServices.Servic
 }
 
 func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate) error {
-	// Dùng regex để bắt các số trong dấu []
-	re := regexp.MustCompile(`\[(\d+)\]`)
+	re := regexp.MustCompile(`\[([^\]]+)\]`)
 	matches := re.FindAllStringSubmatch(m.Content, -1)
 
-	if len(matches) < 2 {
-		return fmt.Errorf("Thiếu tham số. Vui lòng sử dụng: !runpickpack [mã đơn][mã vận chuyển]")
+	if len(matches) < 4 {
+		return fmt.Errorf("Thiếu tham số. Vui lòng sử dụng: !runpickpack [email][password][mã đơn][mã vận chuyển]")
 	}
 
-	// matches[i][1] chứa số trong dấu [] (group đầu tiên của regex)
-	shipmentNumber := matches[0][1]
-	shippingUnitId, err := strconv.ParseInt(matches[1][1], 10, 64)
+	// Lấy email và password từ tham số đầu vào
+	emailWms := matches[0][1]                                      // email ở vị trí đầu tiên
+	passwordWms := matches[1][1]                                   // password ở vị trí thứ hai
+	shipmentNumber := matches[2][1]                                // mã đơn ở vị trí thứ ba
+	shippingUnitId, err := strconv.ParseInt(matches[3][1], 10, 64) // mã vận chuyển ở vị trí thứ tư
 	if err != nil {
 		return fmt.Errorf("Mã vận chuyển không hợp lệ: %v", err)
 	}
@@ -49,35 +50,45 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 	defer cancel()
 	requestParams := &models.AutoPickPackRequest{
 		LoginRequest: models.LoginRequest{
+			LoginWmsRequest: models.LoginWmsRequest{
+				EmailWms:    emailWms,
+				PasswordWms: passwordWms,
+			},
 			LoginDiscordRequest: models.LoginDiscordRequest{
-				Login:    "sonplh1@hasaki.vn",
-				Password: "12345a@A",
-				Undelete: false,
+				LoginDiscord:    "trieuld@hasaki.vn",
+				PasswordDiscord: "123456aH@",
+				Undelete:        false,
 			},
 		},
 		SalesOrderNumber: shipmentNumber,
 		ShippingUnitId:   shippingUnitId,
 	}
 
-	result, err := h.usecase.AutoPickPack(ctx, *requestParams)
+	_, err = h.usecase.AutoPickPack(ctx, *requestParams)
 	if err != nil {
 		logrus.Errorf("Failed ready pickpack: %v", err)
 		return err
 	}
 
 	// Chia nhỏ kết quả thành nhiều phần nếu quá dài
-	const maxLength = 1990 // Để lại một chút dư cho các ký tự định dạng
-	for i := 0; i < len(result); i += maxLength {
-		end := i + maxLength
-		if end > len(result) {
-			end = len(result)
-		}
-		chunk := result[i:end]
-		_, err := s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```%s```", chunk))
-		if err != nil {
-			logrus.Errorf("Failed to send message: %v", err)
-			return err
-		}
+	// const maxLength = 1990 // Để lại một chút dư cho các ký tự định dạng
+	// for i := 0; i < len(result); i += maxLength {
+	// 	end := i + maxLength
+	// 	if end > len(result) {
+	// 		end = len(result)
+	// 	}
+	// 	chunk := result[i:end]
+	// 	_, err := s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```%s```", chunk))
+	// 	if err != nil {
+	// 		logrus.Errorf("Failed to send message: %v", err)
+	// 		return err
+	// 	}
+	// }
+	_, err = s.ChannelMessageSend(m.ChannelID, "DONE: Run PICK PACK")
+	if err != nil {
+		logrus.Errorf("Failed to send message: %v", err)
+		return err
 	}
+
 	return nil
 }

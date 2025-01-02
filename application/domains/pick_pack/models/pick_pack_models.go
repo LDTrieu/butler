@@ -6,28 +6,28 @@ type AutoPickPackRequest struct {
 	ShippingUnitId   int64
 }
 
-// type LoginWmsRequest struct {
-// 	EmailWms    string `json:"email"`
-// 	PasswordWms string `json:"password"`
-// }
+type LoginWmsRequest struct {
+	EmailWms    string `json:"email"`
+	PasswordWms string `json:"password"`
+}
 
-// type LoginWmsResponse struct {
-// 	Token string `json:"token"`
-// 	User  struct {
-// 		UserId   int    `json:"user_id"`
-// 		LastName string `json:"last_name"`
-// 		Email    string `json:"email"`
-// 		Status   string `json:"status"`
-// 	} `json:"user"`
-// 	Message string `json:"message"`
-// }
+type LoginWmsResponse struct {
+	Token string `json:"token"`
+	User  struct {
+		UserId   int    `json:"user_id"`
+		LastName string `json:"last_name"`
+		Email    string `json:"email"`
+		Status   string `json:"status"`
+	} `json:"user"`
+	Message string `json:"message"`
+}
 
 type LoginDiscordRequest struct {
-	Login         string      `json:"login"`
-	Password      string      `json:"password"`
-	Undelete      bool        `json:"undelete"`
-	LoginSource   interface{} `json:"login_source"`
-	GiftCodeSkuId interface{} `json:"gift_code_sku_id"`
+	LoginDiscord    string      `json:"login"`
+	PasswordDiscord string      `json:"password"`
+	Undelete        bool        `json:"undelete"`
+	LoginSource     interface{} `json:"login_source"`
+	GiftCodeSkuId   interface{} `json:"gift_code_sku_id"`
 }
 
 type LoginDiscordResponse struct {
@@ -46,11 +46,11 @@ type LoginDiscordResponse struct {
 }
 
 type LoginRequest struct {
-	//LoginWmsRequest     LoginWmsRequest
+	LoginWmsRequest     LoginWmsRequest
 	LoginDiscordRequest LoginDiscordRequest
 }
 
 type LoginResponse struct {
-	//LoginWmsResponse     LoginWmsResponse
+	LoginWmsResponse     LoginWmsResponse
 	LoginDiscordResponse LoginDiscordResponse
 }

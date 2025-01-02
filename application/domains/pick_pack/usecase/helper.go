@@ -18,30 +18,30 @@ func apiRetryCondition(status int, body []byte, errRequest error) bool {
 	return false
 }
 
-// func (u *usecase) loginWms(ctx context.Context, email, password string) (*models.LoginWmsResponse, error) {
-// 	headers := map[string]string{
-// 		"Content-Type": "application/json",
-// 	}
+func (u *usecase) loginWms(ctx context.Context, email, password string) (*models.LoginWmsResponse, error) {
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
 
-// 	endpoint := u.cfg.ApiExternal.Wms.Url
-// 	url := endpoint + constants.WMS_LOGIN
+	endpoint := u.cfg.ApiExternal.Wms.Url
+	url := endpoint + constants.WMS_LOGIN
 
-// 	_, body, err := hrequest.MakeRequest(headers, constants.METHOD_POST, url, &models.LoginWmsRequest{
-// 		EmailWms:    email,
-// 		PasswordWms: password,
-// 	}, 10, NO_RETRY, NO_DELAY, apiRetryCondition)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	response := &models.LoginWmsResponse{}
-// 	if err := json.Unmarshal(body, response); err != nil {
-// 		return nil, err
-// 	}
-// 	if response.Message != "" {
-// 		return nil, errors.New(response.Message)
-// 	}
-// 	return response, nil
-// }
+	_, body, err := hrequest.MakeRequest(headers, constants.METHOD_POST, url, &models.LoginWmsRequest{
+		EmailWms:    email,
+		PasswordWms: password,
+	}, 10, NO_RETRY, NO_DELAY, apiRetryCondition)
+	if err != nil {
+		return nil, err
+	}
+	response := &models.LoginWmsResponse{}
+	if err := json.Unmarshal(body, response); err != nil {
+		return nil, err
+	}
+	if response.Message != "" {
+		return nil, errors.New(response.Message)
+	}
+	return response, nil
+}
 
 func (u *usecase) loginDiscord(ctx context.Context, email, password string) (*models.LoginDiscordResponse, error) {
 	headers := map[string]string{
@@ -51,9 +51,9 @@ func (u *usecase) loginDiscord(ctx context.Context, email, password string) (*mo
 	url := endpoint + constants.DISCORD_LOGIN
 
 	_, body, err := hrequest.MakeRequest(headers, constants.METHOD_POST, url, &models.LoginDiscordRequest{
-		Login:    email,
-		Password: password,
-		Undelete: false,
+		LoginDiscord:    email,
+		PasswordDiscord: password,
+		Undelete:        false,
 	}, 10, NO_RETRY, NO_DELAY, apiRetryCondition)
 	if err != nil {
 		return nil, err

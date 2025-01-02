@@ -1,101 +1,12 @@
 {
 	"info": {
-		"_postman_id": "db313ee5-971a-4150-a493-b789d12d7897",
+		"_postman_id": "7176b5d2-c772-4158-ab58-ce54ed41452c",
 		"name": "PickPackChung",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "37376642"
+		"_exporter_id": "23314649",
+		"_collection_link": "https://bold-desert-723885.postman.co/workspace/report_management~ff175dac-f816-4820-a41c-493319a7c654/collection/23314649-7176b5d2-c772-4158-ab58-ce54ed41452c?action=share&source=collection_link&creator=23314649"
 	},
 	"item": [
-		{
-			"name": "Login WMS",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.collectionVariables.set(\"token\", pm.response.json().token)\r",
-							"pm.collectionVariables.set(\"email\", JSON.parse(request.data).email)\r",
-							"pm.collectionVariables.set(\"user_id\", pm.response.json().user.user_id)"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"email\": \"sonplh1@hasaki.vn\",\n  \"password\": \"123456a\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://ff-auth-test.inshasaki.com/api/v1/auth/user/login",
-					"protocol": "https",
-					"host": [
-						"ff-auth-test",
-						"inshasaki",
-						"com"
-					],
-					"path": [
-						"api",
-						"v1",
-						"auth",
-						"user",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Login Discord",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.collectionVariables.set(\"token_discord\", pm.response.json().token)"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"login\": \"sonplh@hasaki.vn\",\r\n    \"password\": \"12345a@A\",\r\n    \"undelete\": false,\r\n    \"login_source\": null,\r\n    \"gift_code_sku_id\": null\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "https://discord.com/api/v9/auth/login",
-					"protocol": "https",
-					"host": [
-						"discord",
-						"com"
-					],
-					"path": [
-						"api",
-						"v9",
-						"auth",
-						"login"
-					]
-				}
-			},
-			"response": []
-		},
 		{
 			"name": "Reset cart of user",
 			"event": [
