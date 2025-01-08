@@ -106,6 +106,9 @@ func (r *repo) UpdateMany(ctx context.Context, objs []*models.Warehouse) error {
 }
 
 func (r *repo) filter(query *gorm.DB, params *models.GetRequest) *gorm.DB {
+	if params.WarehouseId != 0 {
+		query = query.Where("warehouse_id = ?", params.WarehouseId)
+	}
 	if params.WarehouseName != "" {
 		query = query.Where("warehouse_name = ?", params.WarehouseName)
 	}

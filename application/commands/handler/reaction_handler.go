@@ -8,6 +8,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
+
+	whModel "butler/application/domains/warehouse/models"
 )
 
 func (c *commandHandler) GetReactionHandler(s *discordgo.Session, r *discordgo.MessageReactionAdd) {
@@ -23,56 +25,34 @@ func (c *commandHandler) GetReactionHandler(s *discordgo.Session, r *discordgo.M
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
 
-	process, err := c.lib.Rdb.Get(ctx, getKeyPreparePick(r.MessageID)).Result()
-	if err != nil {
-		logrus.Errorf("Failed get prepare pick key: %v", err)
-		return
-	}
-	if process == "" {
-		return
-	}
+	if value := c.lib.Cache.Get(getKeyWhConfig(r.MessageID)); value != nil {
+		// TODO: write separate function to handle this
+		c.lib.Cache.Delete(getKeyWhConfig(r.MessageID))
+		request, ok := value.(*whModel.UpdateConfigWarehouseRequest)
+		if !ok {
+			s.ChannelMessageSend(r.ChannelID, fmt.Sprintf("cache error: failed to parse request: %#v", value))
+			return
+		}
+		if request == nil {
+			s.ChannelMessageSend(r.ChannelID, "Update config warehouse failed, please try again")
+			return
+		}
+		switch r.Emoji.Name {
+		case constants.EMOJI_CHAR_A:
+			request.Config = constants.WAREHOUSE_CONFIG_ENABLE_LOCATION
+		default:
+			return
+		}
 
-	switch r.Emoji.Name {
-	case constants.EMOJI_NUMBER_ONE:
-		s.ChannelMessageSend(r.ChannelID, "you choose warehouse 555 3 THANG 2")
-	case constants.EMOJI_NUMBER_TWO:
-		s.ChannelMessageSend(r.ChannelID, "you choose warehouse 29 HOANG VIET")
-	default:
-		// s.ChannelMessageSend(r.ChannelID, "you choose wrong warehouse")
-		return
-	}
-
-	key := getKeyPreparePick(r.UserID)
-	if err := c.lib.Rdb.Set(ctx, key, fmt.Sprintf("%v:", constants.MAP_EMOJI_WAREHOUSE[r.Emoji.Name]), 5*time.Minute).Err(); err != nil {
-		logrus.Errorf("Failed set prepare pick key: %v", err)
-		return
-	}
-
-	nextRequest, err := s.ChannelMessageSendEmbed(r.ChannelID, &discordgo.MessageEmbed{
-		Title:       "Chọn đơn vị vận chuyển",
-		Description: "Gõ số đơn để đi pick",
-		Fields: []*discordgo.MessageEmbedField{
-			{
-				Name:  constants.EMOJI_NUMBER_ONE + ": SHOP - 555 3 THANG 2",
-				Value: "\n",
-			},
-			{
-				Name:  constants.EMOJI_NUMBER_TWO + ": SHOP-29 HOANG VIET",
-				Value: "\n",
-			},
-		},
-	})
-	if err != nil {
-		logrus.Errorf("Error handle help command %v", err)
-		return
-	}
-
-	if err := c.lib.Rdb.Set(ctx, getKeyPreparePick(r.MessageID), nextRequest.ID, 5*time.Minute).Err(); err != nil {
-		logrus.Errorf("Failed set prepare pick key: %v", err)
-		return
+		if err := c.whHandler.UpdateConfigWarehouse(ctx, request); err != nil {
+			s.ChannelMessageSend(r.ChannelID, err.Error())
+			return
+		} else {
+			s.ChannelMessageSend(r.ChannelID, "thêm config thành công")
+		}
 	}
 }
 
-func getKeyPreparePick(userId string) string {
-	return fmt.Sprintf("prepare_pick:%s", userId)
+func getKeyWhConfig(messageId string) string {
+	return messageId + "::" + constants.CACHE_KEY_WH_CONFIG
 }

@@ -64,7 +64,8 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 	if !strings.HasPrefix(m.Content, constants.BOT_COMMAND_PREFIX) && !helper.CheckMention(m, s.State.User) {
 		return
 	}
-	logrus.Debugf("member roles: %v", m.Member.Roles)
+	// logrus.Debugf("member roles: %v", m.Member.Roles)
+	// logrus.Debugf("channel id: %v", m.ChannelID)
 
 	var err error
 	switch {
@@ -89,6 +90,9 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_COUNT_KPI),
 		helper.CheckPrefixCommand(m.Content, constants.COMMAND_COUNT_PROD_KPI):
 		err = c.kpiHandler.CountKpi(s, m)
+
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_WH_CONFIG):
+		err = c.whHandler.ShowConfigWarehouse(s, m)
 	}
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())

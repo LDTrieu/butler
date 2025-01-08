@@ -62,13 +62,11 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				`,
 			},
 			{
-				Name: "tính kpi",
+				Name: "Cập nhật config kho",
 				Value: `
-					!kpi <ngày>
-					Example: !kpi 2024-07-25
-							 !kpi 2024-07
-							 !prod kpi 2024-07
-							 !prod kpi 2024-07-25
+					!whcfg add/sub <warehouse_id>
+					Example: !whcfg add 14
+							 !wgcfg sub 14
 				`,
 			},
 		},
