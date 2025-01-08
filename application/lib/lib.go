@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"butler/application/commands/cache"
 	"butler/config"
 	"butler/pkg/sql/mysql"
 	"time"
@@ -18,6 +19,7 @@ type Lib struct {
 	Rdb                *redis.Client
 	KafkaPublisherQc   kafka.Publisher
 	KafkaPublisherProd kafka.Publisher
+	Cache              *cache.Cache
 }
 
 func InitLib(cfg *config.Config) *Lib {
@@ -40,11 +42,14 @@ func InitLib(cfg *config.Config) *Lib {
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 
+	cache := cache.InitCache()
+
 	return &Lib{
 		Db:                 db,
 		Validator:          validate,
 		Rdb:                rdb,
 		KafkaPublisherQc:   publisherQc,
 		KafkaPublisherProd: publisherProd,
+		Cache:              cache,
 	}
 }

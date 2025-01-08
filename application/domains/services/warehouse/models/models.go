@@ -34,6 +34,7 @@ func (w *Warehouse) TableName() string {
 }
 
 type GetRequest struct {
+	WarehouseId          int64
 	WarehouseName        string
 	WarehouseNameSimilar string
 }
