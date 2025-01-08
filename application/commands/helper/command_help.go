@@ -80,7 +80,7 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				Value: `
 					!whcfg add/sub <warehouse_id>
 					Example: !whcfg add 14
-							 !wgcfg sub 14
+							 !whcfg sub 14
 				`,
 			},
 		},
