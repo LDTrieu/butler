@@ -66,7 +66,11 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				Value: `
 					!whcfg add/sub <warehouse_id>
 					Example: !whcfg add 14
-							 !wgcfg sub 14
+							 !whcfg sub 14
+					Or: 
+					!whcfg add/sub <warehouse_id> <config>
+					Example: !whcfg add 14 1
+							 !whcfg sub 14 1
 				`,
 			},
 		},

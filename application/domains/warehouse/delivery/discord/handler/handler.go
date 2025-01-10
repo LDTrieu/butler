@@ -62,6 +62,46 @@ func (h Handler) ShowConfigWarehouse(s *discordgo.Session, m *discordgo.MessageC
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
 
+	tokens := strings.Split(m.Content, " ")
+	if len(tokens) != 3 && len(tokens) != 4 {
+		return fmt.Errorf("command invalid")
+	}
+
+	if len(tokens) == 4 {
+		whId, err := strconv.ParseInt(tokens[2], 10, 64)
+		if err != nil {
+			logrus.Errorf("Failed to parse warehouse id: %v", err)
+			return err
+		}
+		config, err := strconv.ParseInt(tokens[3], 10, 64)
+		if err != nil {
+			logrus.Errorf("Failed to parse config: %v", err)
+			return err
+		}
+
+		if tokens[1] == "sub" {
+			if err := h.usecase.RemoveConfigWarehouse(ctx, &models.UpdateConfigWarehouseRequest{
+				WarehouseId: whId,
+				Operation:   "sub",
+				Config:      int(config),
+			}); err != nil {
+				logrus.Errorf("Failed to remove config warehouse: %v", err)
+				return err
+			}
+		} else {
+			if err := h.usecase.AddConfigWarehouse(ctx, &models.UpdateConfigWarehouseRequest{
+				WarehouseId: whId,
+				Operation:   "add",
+				Config:      int(config),
+			}); err != nil {
+				logrus.Errorf("Failed to add config warehouse: %v", err)
+				return err
+			}
+		}
+		s.ChannelMessageSend(m.ChannelID, "Update config warehouse success!")
+		return nil
+	}
+
 	reg := regexp.MustCompile(`[0-9]+`)
 	warehouseId := reg.FindString(m.Content)
 	warehouseIdInt, err := strconv.ParseInt(warehouseId, 10, 64)
