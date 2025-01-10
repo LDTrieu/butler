@@ -59,11 +59,11 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		return fmt.Errorf("outbound order [%s] không ở trạng thái picklisted", params.SalesOrderNumber)
 	}
 	if outbound.Config != 0 {
-		if outbound.Config == 1 {
+		if outbound.Config&constants.OUTBOUND_ORDER_CONFIG_NOT_ENOUGH_QTY != 0 {
 			return fmt.Errorf("outbound order [%s] không đủ hàng đi pick", params.SalesOrderNumber)
 		}
 		if outbound.Config&constants.OUTBOUND_ORDER_CONFIG_DESIGNATE_DATE == 0 {
-			return fmt.Errorf("outbound order [%s] không đủ điều kiện pick", params.SalesOrderNumber)
+			return fmt.Errorf("outbound order [%s] không đủ điều kiện pick, order không có config %v", params.SalesOrderNumber, constants.OUTBOUND_ORDER_CONFIG_MAP_NAME[constants.OUTBOUND_ORDER_CONFIG_DESIGNATE_DATE])
 		}
 	}
 
