@@ -12,4 +12,5 @@ type IRepository interface {
 	GetOne(ctx context.Context, params *models.GetRequest) (*models.BinLocationCartMapping, error)
 	GetList(ctx context.Context, params *models.GetRequest) ([]*models.BinLocationCartMapping, error)
 	Create(ctx context.Context, obj *models.BinLocationCartMapping) (*models.BinLocationCartMapping, error)
+	Delete(ctx context.Context, id int64) error
 }

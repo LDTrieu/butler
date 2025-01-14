@@ -115,3 +115,11 @@ func (r *repo) filter(query *gorm.DB, params *models.GetRequest) *gorm.DB {
 	}
 	return query
 }
+
+func (r *repo) Delete(ctx context.Context, id int64) error {
+	result := r.dbWithContext(ctx).Delete(&models.BinLocationCartMapping{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

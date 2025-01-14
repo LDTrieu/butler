@@ -67,3 +67,12 @@ func (s *service) Create(ctx context.Context, obj *models.BinLocationCartMapping
 
 	return record, nil
 }
+
+func (s *service) Delete(ctx context.Context, id int64) error {
+	err := s.repo.Delete(ctx, id)
+	if err != nil {
+		logrus.Errorf("error when delete bin location: %v", err)
+		return fmt.Errorf("error when delete bin location: %v", err)
+	}
+	return nil
+}
