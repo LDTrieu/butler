@@ -76,6 +76,13 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				`,
 			},
 			{
+				Name: "reset vị trí của một kho cụ thể bị đổi bởi lệnh !showwarehouse",
+				Value: `
+					!reset_show_warehouse_by_id <mã kho>
+					Eample: !reset_show_warehouse_by_id 540
+				`,
+			},
+			{
 				Name: "Cập nhật config kho",
 				Value: `
 					!whcfg add/sub <warehouse_id>

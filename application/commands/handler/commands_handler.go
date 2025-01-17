@@ -94,6 +94,8 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		err = c.whHandler.ShowWarehouse(s, m)
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_SHOW_WAREHOUSE):
 		err = c.whHandler.ResetShowWarehouse(s, m)
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_RESET_SHOW_WAREHOUSE_BY_ID):
+		err = c.whHandler.ResetShowWarehouseById(s, m)
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_COUNT_KPI),
 		helper.CheckPrefixCommand(m.Content, constants.COMMAND_COUNT_PROD_KPI):
 		err = c.kpiHandler.CountKpi(s, m)

@@ -242,23 +242,21 @@ func (u *usecase) ResetCartByEmail(ctx context.Context, param *models.ResetCartB
 			return "", err
 		}
 		if cartMapping != nil {
-			_, err = u.cartMappingSv.Update(ctx, &cartMappingModels.BinLocationCartMapping{
-				Id:     cartMapping.Id,
-				Status: constants.BIN_LOCATION_CART_MAPPING_STATUS_USING,
-			})
-			if err != nil {
-				return "", err
-			}
-		} else {
-			_, err := u.cartMappingSv.Create(ctx, &cartMappingModels.BinLocationCartMapping{
-				CartCode: cart.CartCode,
-				UsedBy:   cart.UpdatedBy,
-				Status:   constants.BIN_LOCATION_CART_MAPPING_STATUS_USING,
-			})
+			err := u.cartMappingSv.Delete(ctx, cartMapping.Id)
 			if err != nil {
 				return "", err
 			}
 		}
+		// else {
+		// 	_, err := u.cartMappingSv.Create(ctx, &cartMappingModels.BinLocationCartMapping{
+		// 		CartCode: cart.CartCode,
+		// 		UsedBy:   cart.UpdatedBy,
+		// 		Status:   constants.BIN_LOCATION_CART_MAPPING_STATUS_FINISH,
+		// 	})
+		// 	if err != nil {
+		// 		return "", err
+		// 	}
+		// }
 		pickingGroups, err := u.pickingGroupSv.GetList(ctx, &pgModels.GetRequest{
 			CartCode:  cart.CartCode,
 			StatusIds: []int64{constants.PICKING_GROUP_STATUS_NEW, constants.PICKING_GROUP_STATUS_PICKING}},
