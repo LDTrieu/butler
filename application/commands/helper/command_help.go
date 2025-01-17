@@ -69,6 +69,13 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				`,
 			},
 			{
+				Name: "cho kho xuất hiện để đi pick ở vị trí kho 29 HOANG VIET",
+				Value: `
+					!show_warehouse_by_id <mã kho>
+					Eample: !show_warehouse_by_id 540
+				`,
+			},
+			{
 				Name: "reset vị trí của các kho bị đổi bởi lệnh !showwarehouse",
 				Value: `
 					!resetshowwarehouse

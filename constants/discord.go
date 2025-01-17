@@ -10,6 +10,7 @@ const (
 	COMMAND_RESET_CART_BY_EMAIL        = "reset_cart_by_email"
 	COMMAND_READY_PICK                 = "readypick"
 	COMMAND_SHOW_WAREHOUSE             = "showwarehouse"
+	COMMAND_SHOW_WAREHOUSE_BY_ID       = "show_warehouse_by_id"
 	COMMAND_RESET_SHOW_WAREHOUSE       = "resetshowwarehouse"
 	COMMAND_RESET_SHOW_WAREHOUSE_BY_ID = "reset_show_warehouse_by_id"
 	COMMAND_PICK                       = "pick"

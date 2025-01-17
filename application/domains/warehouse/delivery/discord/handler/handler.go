@@ -46,6 +46,29 @@ func (h Handler) ShowWarehouse(s *discordgo.Session, m *discordgo.MessageCreate)
 	return nil
 }
 
+func (h Handler) ShowWarehouseById(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	warehouseName := strings.ReplaceAll(m.Content, "!showwarehouse ", "")
+	logrus.Infof("show warehouse: %s", warehouseName)
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	defer cancel()
+
+	reg := regexp.MustCompile(`[0-9]+`)
+	warehouseId := reg.FindString(m.Content)
+	warehouseIdInt, err := strconv.ParseInt(warehouseId, 10, 64)
+	if err != nil {
+		logrus.Errorf("Failed to parse warehouse id: %v", err)
+		return err
+	}
+	if err := h.usecase.ShowWarehouse(ctx, &models.ShowWarehouseRequest{
+		WarehouseId: warehouseIdInt,
+	}); err != nil {
+		logrus.Errorf("Failed to show warehouse: %v", err)
+		return err
+	}
+	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Warehouse [%d] is ready!", warehouseIdInt))
+	return nil
+}
+
 func (h Handler) ResetShowWarehouse(s *discordgo.Session, m *discordgo.MessageCreate) error {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
