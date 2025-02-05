@@ -53,7 +53,7 @@ func (u *usecase) ShowWarehouse(ctx context.Context, params *models.ShowWarehous
 			}
 			return fmt.Errorf("có nhiều kho có tên giống [%s], vui lòng nhập đúng tên: \n - %s", params.WarehouseName, strings.Join(warehouseNames, "\n- "))
 		}
-		warehouse := suggestedWarehouses[0]
+		warehouse = suggestedWarehouses[0]
 		if warehouse.LocationId == LOCATION_ID_555 {
 			return fmt.Errorf("kho [%s] đã có thể đi pick ở vị trí kho 555 3/2", warehouse.WarehouseName)
 		}
@@ -79,11 +79,12 @@ func (u *usecase) ShowWarehouse(ctx context.Context, params *models.ShowWarehous
 }
 
 func (u *usecase) updateLocationWarehouse(ctx context.Context, warehouseId int64, locationId int64) error {
-	if _, err := u.whSv.Update(ctx, &whModels.Warehouse{
+	_, err := u.whSv.Update(ctx, &whModels.Warehouse{
 		WarehouseId: warehouseId,
 		LocationId:  locationId,
 		Description: fmt.Sprintf("location-%d", locationId),
-	}); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 	return nil
