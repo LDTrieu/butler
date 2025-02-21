@@ -118,3 +118,16 @@ func (r *repo) sort(query *gorm.DB, params *models.GetRequest) *gorm.DB {
 	}
 	return query
 }
+
+func (r *repo) GetListOutboundItems(ctx context.Context, outboundOrderID int64) ([]*models.OutboundOrderItem, error) {
+	items := []*models.OutboundOrderItem{}
+	if outboundOrderID == 0 {
+		return nil, nil
+	}
+
+	result := r.dbWithContext(ctx).Where("outbound_order_id = ?", outboundOrderID).Find(&items)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return items, nil
+}

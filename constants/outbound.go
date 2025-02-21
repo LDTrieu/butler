@@ -61,3 +61,7 @@ var OUTBOUND_ORDER_CONFIG_MAP_NAME = map[int]string{
 	OUTBOUND_ORDER_CONFIG_ALLOW_MISSING_PICKUP:   "CS cho phép pick thiếu",
 	OUTBOUND_ORDER_CONFIG_COMPLETED:              "Đơn Hoàn thành xử lý (thiếu hàng)",
 }
+
+const (
+	OWNER_ID_OMS int64 = 1503
+)
