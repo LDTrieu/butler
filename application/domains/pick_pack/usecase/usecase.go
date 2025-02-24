@@ -3,6 +3,7 @@ package usecase
 import (
 	"butler/application/domains/pick_pack/models"
 	initServices "butler/application/domains/services/init"
+	outboundOrderSv "butler/application/domains/services/outbound_order/service"
 	"butler/application/lib"
 	"butler/config"
 	"butler/constants"
@@ -18,8 +19,9 @@ import (
 )
 
 type usecase struct {
-	lib *lib.Lib
-	cfg *config.Config
+	lib             *lib.Lib
+	cfg             *config.Config
+	outboundOrderSv outboundOrderSv.IService
 }
 
 func InitUseCase(
@@ -28,9 +30,9 @@ func InitUseCase(
 	services *initServices.Services,
 ) IUseCase {
 	return &usecase{
-		lib: lib,
-
-		cfg: cfg,
+		lib:             lib,
+		cfg:             cfg,
+		outboundOrderSv: services.OutboundOrderService,
 	}
 }
 
@@ -141,7 +143,6 @@ func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*mode
 	if wms.Token == "" || discord.Token == "" {
 		return nil, errors.New("token wms or token discord is empty")
 	}
-
 
 	return &models.LoginResponse{
 		LoginWmsResponse:     *wms,

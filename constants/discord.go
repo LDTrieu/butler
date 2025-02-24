@@ -18,6 +18,7 @@ const (
 	COMMAND_COUNT_PROD_KPI             = "prod kpi"
 	COMMAND_PICK_PACK                  = "runpickpack"
 	COMMAND_WH_CONFIG                  = "whcfg"
+	COMMAND_PICK_PACK_KAFKA            = "ppkafka"
 )
 
 const USER_ID_REGEX = `<@(\d+)>`

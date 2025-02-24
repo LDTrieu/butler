@@ -11,4 +11,5 @@ type IRepository interface {
 	GetById(ctx context.Context, id int64) (*models.OutboundOrder, error)
 	GetOne(ctx context.Context, params *models.GetRequest) (*models.OutboundOrder, error)
 	GetList(ctx context.Context, params *models.GetRequest) ([]*models.OutboundOrder, error)
+	GetListOutboundItems(ctx context.Context, outboundOrderID int64) ([]*models.OutboundOrderItem, error)
 }

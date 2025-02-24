@@ -7,10 +7,13 @@ import (
 	"butler/application/lib"
 	"butler/config"
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
 	"time"
+
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
@@ -84,6 +87,34 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 	// 		return err
 	// 	}
 	// }
+	_, err = s.ChannelMessageSend(m.ChannelID, "DONE: Run PICK PACK")
+	if err != nil {
+		logrus.Errorf("Failed to send message: %v", err)
+		return err
+	}
+
+	return nil
+}
+
+func (h Handler) PickPackKafka(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	reg := regexp.MustCompile(`[0-9]+`)
+	orderCode := strings.TrimSpace(reg.FindString(m.Content))
+
+	if orderCode == "" {
+		return errors.New("mã đơn không hợp lệ")
+	}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	defer cancel()
+
+	err := h.usecase.PickPackKafka(ctx, &models.AutoPickPackRequest{
+		SalesOrderNumber: orderCode,
+	})
+	if err != nil {
+		logrus.Errorf("Failed pickpack kafka: %v", err)
+		return err
+	}
+
 	_, err = s.ChannelMessageSend(m.ChannelID, "DONE: Run PICK PACK")
 	if err != nil {
 		logrus.Errorf("Failed to send message: %v", err)
