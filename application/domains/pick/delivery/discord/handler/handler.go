@@ -29,18 +29,13 @@ func InitHandler(lib *lib.Lib, services *initServices.Services) Handler {
 }
 
 func (h Handler) ReadyPickOutbound(s *discordgo.Session, m *discordgo.MessageCreate) error {
-	// Tách command và tham số
 	parts := strings.Fields(m.Content)
 	if len(parts) < 2 {
-		return fmt.Errorf("Vui lòng nhập số đơn hàng sau lệnh")
+		return fmt.Errorf("Invalid command format. \nExample: !readypick <outbound_order_number_1>, <outbound_order_number_2>")
 	}
 
-	// Lấy toàn bộ phần tham số (tất cả sau lệnh !readypick)
 	orderInput := strings.Join(parts[1:], " ")
-
-	// Tách các đơn hàng theo dấu phẩy
 	salesOrderNumbers := []string{}
-
 	for _, order := range strings.Split(orderInput, ",") {
 		order = strings.TrimSpace(order)
 		if order != "" {
@@ -49,13 +44,12 @@ func (h Handler) ReadyPickOutbound(s *discordgo.Session, m *discordgo.MessageCre
 	}
 
 	if len(salesOrderNumbers) == 0 {
-		return fmt.Errorf("Không tìm thấy số đơn hàng")
+		return fmt.Errorf("Not found sales_order_number")
 	}
 
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(60*time.Second))
 	defer cancel()
 
-	// Nếu chỉ có một đơn hàng
 	if len(salesOrderNumbers) == 1 {
 		saleOrderNumber := salesOrderNumbers[0]
 		logrus.Infof("Prepare for outbound [%s] to ready pick", saleOrderNumber)
@@ -71,7 +65,6 @@ func (h Handler) ReadyPickOutbound(s *discordgo.Session, m *discordgo.MessageCre
 		return nil
 	}
 
-	// Nếu có nhiều đơn hàng
 	var successOrders []string
 	var failedOrders []struct {
 		OrderNumber string
