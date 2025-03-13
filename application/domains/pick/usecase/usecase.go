@@ -56,11 +56,11 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	}
 
 	if outbound.StatusId != 1 {
-		return fmt.Errorf("outbound order [%s] không ở trạng thái picklisted", params.SalesOrderNumber)
+		return fmt.Errorf("Outbound order [%s] không ở trạng thái picklisted", params.SalesOrderNumber)
 	}
 	if outbound.Config != 0 {
 		if outbound.Config&constants.OUTBOUND_ORDER_CONFIG_NOT_ENOUGH_QTY != 0 {
-			return fmt.Errorf("outbound order [%s] không đủ hàng đi pick", params.SalesOrderNumber)
+			return fmt.Errorf("Outbound order [%s] không đủ hàng đi pick", params.SalesOrderNumber)
 		}
 
 	}
@@ -70,10 +70,10 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		return err
 	}
 	if picking == nil || picking.PickingId == 0 {
-		return fmt.Errorf("outbound order [%s] không có picking", params.SalesOrderNumber)
+		return fmt.Errorf("Outbound order [%s] không có picking", params.SalesOrderNumber)
 	}
 	if picking.StatusId != 1 {
-		return fmt.Errorf("picking [%s] không ở trạng thái được pick", picking.PickingNumber)
+		return fmt.Errorf("Picking [%s] không ở trạng thái được pick", picking.PickingNumber)
 	}
 
 	defaultLocation := DEFAULT_LOCATION
@@ -118,7 +118,7 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		return err
 	}
 	if len(pickingItems) == 0 {
-		return fmt.Errorf("outbound [%s] không có hàng để pick", picking.PickingNumber)
+		return fmt.Errorf("Outbound [%s] không có hàng để pick", picking.PickingNumber)
 	}
 
 	updateLocationPickingItemIds := make([]int64, 0)
@@ -133,14 +133,14 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 				updateLocationPickingItemIds = append(updateLocationPickingItemIds, item.PickingItemId)
 			}
 		} else {
-			return fmt.Errorf("loại outbound order [%s] không hợp lệ: %s ", params.SalesOrderNumber, outbound.OutboundOrderType)
+			return fmt.Errorf("Loại outbound order [%s] không hợp lệ: %s ", params.SalesOrderNumber, outbound.OutboundOrderType)
 		}
 		if item.StatusId == 1 {
 			inventoryIds = append(inventoryIds, item.InventoryId)
 		}
 	}
 	if len(inventoryIds) == 0 {
-		return fmt.Errorf("outbound [%s] không có item phù hợp để pick", picking.PickingNumber)
+		return fmt.Errorf("Outbound [%s] không có item phù hợp để pick", picking.PickingNumber)
 	}
 
 	inventories, err := u.invenorySv.GetList(ctx, outbound.WarehouseId, &invenoryModel.GetRequest{InventoryIds: inventoryIds})
