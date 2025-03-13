@@ -57,36 +57,36 @@ func HelpEmbed() *discordgo.MessageEmbed {
 			{
 				Name: "chuẩn bị cho đơn outbound có thể được đi pick",
 				Value: `
-					!readypick <mã source number>
-					Eample: !readypick 100224050700001
+					!readypick <mã source number1>, <mã source number2>
+					Example: !readypick 100224050700001,100224050700002
 				`,
 			},
 			{
 				Name: "cho kho xuất hiện để đi pick ở vị trí kho 29 HOANG VIET",
 				Value: `
 					!showwarehouse <tên kho>
-					Eample: !showwarehouse SHOP - 29
+					Example: !showwarehouse SHOP - 29
 				`,
 			},
 			{
 				Name: "cho kho xuất hiện để đi pick ở vị trí kho 29 HOANG VIET",
 				Value: `
 					!show_warehouse_by_id <mã kho>
-					Eample: !show_warehouse_by_id 540
+					Example: !show_warehouse_by_id 540
 				`,
 			},
 			{
 				Name: "reset vị trí của các kho bị đổi bởi lệnh !showwarehouse",
 				Value: `
 					!resetshowwarehouse
-					Eample: !resetshowwarehouse
+					Example: !resetshowwarehouse
 				`,
 			},
 			{
 				Name: "reset vị trí của một kho cụ thể bị đổi bởi lệnh !showwarehouse",
 				Value: `
 					!reset_show_warehouse_by_id <mã kho>
-					Eample: !reset_show_warehouse_by_id 540
+					Example: !reset_show_warehouse_by_id 540
 				`,
 			},
 			{

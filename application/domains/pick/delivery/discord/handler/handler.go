@@ -8,7 +8,7 @@ import (
 	"butler/constants"
 	"context"
 	"fmt"
-	"regexp"
+	"strings"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -29,19 +29,89 @@ func InitHandler(lib *lib.Lib, services *initServices.Services) Handler {
 }
 
 func (h Handler) ReadyPickOutbound(s *discordgo.Session, m *discordgo.MessageCreate) error {
-	reg := regexp.MustCompile(`[0-9]+`)
-	saleOrderNumber := reg.FindString(m.Content)
-	logrus.Infof("Prepare for outbound [%s] to ready pick", saleOrderNumber)
-	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	// Tách command và tham số
+	parts := strings.Fields(m.Content)
+	if len(parts) < 2 {
+		return fmt.Errorf("Vui lòng nhập số đơn hàng sau lệnh")
+	}
+
+	// Lấy toàn bộ phần tham số (tất cả sau lệnh !readypick)
+	orderInput := strings.Join(parts[1:], " ")
+
+	// Tách các đơn hàng theo dấu phẩy
+	salesOrderNumbers := []string{}
+
+	for _, order := range strings.Split(orderInput, ",") {
+		order = strings.TrimSpace(order)
+		if order != "" {
+			salesOrderNumbers = append(salesOrderNumbers, order)
+		}
+	}
+
+	if len(salesOrderNumbers) == 0 {
+		return fmt.Errorf("Không tìm thấy số đơn hàng")
+	}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(60*time.Second))
 	defer cancel()
 
-	if err := h.usecase.ReadyPickOutbound(ctx, &models.ReadyPickOutboundRequest{
-		SalesOrderNumber: saleOrderNumber,
-	}); err != nil {
-		logrus.Errorf("Failed ready outbound: %v", err)
-		return err
+	// Nếu chỉ có một đơn hàng
+	if len(salesOrderNumbers) == 1 {
+		saleOrderNumber := salesOrderNumbers[0]
+		logrus.Infof("Prepare for outbound [%s] to ready pick", saleOrderNumber)
+
+		if err := h.usecase.ReadyPickOutbound(ctx, &models.ReadyPickOutboundRequest{
+			SalesOrderNumber: saleOrderNumber,
+		}); err != nil {
+			logrus.Errorf("Failed ready outbound: %v", err)
+			return err
+		}
+
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Đơn hàng [%s] đã sẵn sàng để pick!", saleOrderNumber))
+		return nil
 	}
-	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Outbound [%s] is ready to be picked!", saleOrderNumber))
+
+	// Nếu có nhiều đơn hàng
+	var successOrders []string
+	var failedOrders []struct {
+		OrderNumber string
+		Error       string
+	}
+
+	for _, saleOrderNumber := range salesOrderNumbers {
+		logrus.Infof("Prepare for outbound [%s] to ready pick", saleOrderNumber)
+
+		err := h.usecase.ReadyPickOutbound(ctx, &models.ReadyPickOutboundRequest{
+			SalesOrderNumber: saleOrderNumber,
+		})
+
+		if err != nil {
+			logrus.Errorf("Failed ready outbound [%s]: %v", saleOrderNumber, err)
+			failedOrders = append(failedOrders, struct {
+				OrderNumber string
+				Error       string
+			}{
+				OrderNumber: saleOrderNumber,
+				Error:       err.Error(),
+			})
+		} else {
+			successOrders = append(successOrders, saleOrderNumber)
+		}
+	}
+
+	var message string
+	if len(successOrders) > 0 {
+		message += fmt.Sprintf("Đơn sẵn sàng để pick: %s\n", strings.Join(successOrders, ", "))
+	}
+
+	if len(failedOrders) > 0 {
+		message += "Đơn xử lý thất bại:\n"
+		for _, failed := range failedOrders {
+			message += fmt.Sprintf("- %s\n", failed.Error)
+		}
+	}
+
+	s.ChannelMessageSend(m.ChannelID, message)
 	return nil
 }
 
