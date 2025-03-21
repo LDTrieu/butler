@@ -107,6 +107,8 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		err = c.whHandler.ShowConfigWarehouse(s, m)
 	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_PICK_PACK_KAFKA):
 		err = c.pickPackHandler.PickPackKafka(s, m)
+	case helper.CheckPrefixCommand(m.Content, constants.COMMAND_SET_VOUCHER_TYPE_OUTBOUND_ORDER):
+		err = c.pickPackHandler.SetOutboundOrderVoucherType(s, m)
 	}
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())

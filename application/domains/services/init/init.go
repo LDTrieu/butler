@@ -11,6 +11,8 @@ import (
 	inventorySv "butler/application/domains/services/inventory/service"
 	outboundOrderInit "butler/application/domains/services/outbound_order/init"
 	outboundOrderSv "butler/application/domains/services/outbound_order/service"
+	outboundOrderExtendInit "butler/application/domains/services/outbound_order_extend/init"
+	outboundOrderExtendSv "butler/application/domains/services/outbound_order_extend/service"
 	packingInit "butler/application/domains/services/packing/init"
 	packingSv "butler/application/domains/services/packing/service"
 	pickingInit "butler/application/domains/services/picking/init"
@@ -31,18 +33,19 @@ import (
 )
 
 type Services struct {
-	PromtAiSv            promtAiSv.IService
-	CartService          cartSv.IService
-	CartMappingService   cartMappingSv.IService
-	PackingService       packingSv.IService
-	PickingGroupService  pickingGroupSv.IService
-	OutboundOrderService outboundOrderSv.IService
-	PickingService       pickingSv.IService
-	PickingItemService   pickingItemSv.IService
-	InventoryService     inventorySv.IService
-	BinLocationService   binLocationSv.IService
-	WarehouseService     warehouseSv.IService
-	UserService          userSv.IService
+	PromtAiSv                  promtAiSv.IService
+	CartService                cartSv.IService
+	CartMappingService         cartMappingSv.IService
+	PackingService             packingSv.IService
+	PickingGroupService        pickingGroupSv.IService
+	OutboundOrderService       outboundOrderSv.IService
+	OutboundOrderExtendService outboundOrderExtendSv.IService
+	PickingService             pickingSv.IService
+	PickingItemService         pickingItemSv.IService
+	InventoryService           inventorySv.IService
+	BinLocationService         binLocationSv.IService
+	WarehouseService           warehouseSv.IService
+	UserService                userSv.IService
 }
 
 func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Services {
@@ -52,6 +55,7 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 	packing := packingInit.NewInit(db, cfg)
 	pickingGroup := pickingGroupInit.NewInit(db, cfg)
 	outboundOrder := outboundOrderInit.NewInit(db, cfg)
+	outboundOrderExtend := outboundOrderExtendInit.NewInit(db, cfg)
 	picking := pickingInit.NewInit(db, cfg)
 	pickingItem := pickingItemInit.NewInit(db, cfg)
 	inventory := inventoryInit.NewInit(db, cfg)
@@ -59,17 +63,18 @@ func InitService(cfg *config.Config, db *gorm.DB, genaiClient *genai.Client) *Se
 	warehouse := warehouseInit.NewInit(db, cfg)
 	user := userInit.NewInit(db, cfg)
 	return &Services{
-		PromtAiSv:            initPromtAiSv,
-		CartService:          cart.Service,
-		CartMappingService:   cartMapping.Service,
-		PackingService:       packing.Service,
-		PickingGroupService:  pickingGroup.Service,
-		OutboundOrderService: outboundOrder.Service,
-		PickingService:       picking.Service,
-		PickingItemService:   pickingItem.Service,
-		InventoryService:     inventory.Service,
-		BinLocationService:   binLocation.Service,
-		WarehouseService:     warehouse.Service,
-		UserService:          user.Service,
+		PromtAiSv:                  initPromtAiSv,
+		CartService:                cart.Service,
+		CartMappingService:         cartMapping.Service,
+		PackingService:             packing.Service,
+		PickingGroupService:        pickingGroup.Service,
+		OutboundOrderService:       outboundOrder.Service,
+		OutboundOrderExtendService: outboundOrderExtend.Service,
+		PickingService:             picking.Service,
+		PickingItemService:         pickingItem.Service,
+		InventoryService:           inventory.Service,
+		BinLocationService:         binLocation.Service,
+		WarehouseService:           warehouse.Service,
+		UserService:                user.Service,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"butler/application/domains/pick_pack/models"
 	initServices "butler/application/domains/services/init"
 	outboundOrderSv "butler/application/domains/services/outbound_order/service"
+	outboundOrderExtendSv "butler/application/domains/services/outbound_order_extend/service"
 	"butler/application/lib"
 	"butler/config"
 	"butler/constants"
@@ -19,9 +20,10 @@ import (
 )
 
 type usecase struct {
-	lib             *lib.Lib
-	cfg             *config.Config
-	outboundOrderSv outboundOrderSv.IService
+	lib                   *lib.Lib
+	cfg                   *config.Config
+	outboundOrderSv       outboundOrderSv.IService
+	outboundOrderExtendSv outboundOrderExtendSv.IService
 }
 
 func InitUseCase(
@@ -30,9 +32,10 @@ func InitUseCase(
 	services *initServices.Services,
 ) IUseCase {
 	return &usecase{
-		lib:             lib,
-		cfg:             cfg,
-		outboundOrderSv: services.OutboundOrderService,
+		lib:                   lib,
+		cfg:                   cfg,
+		outboundOrderSv:       services.OutboundOrderService,
+		outboundOrderExtendSv: services.OutboundOrderExtendService,
 	}
 }
 
