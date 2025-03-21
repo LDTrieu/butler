@@ -101,6 +101,13 @@ func HelpEmbed() *discordgo.MessageEmbed {
 							 !whcfg sub 14 1
 				`,
 			},
+			{
+				Name: "Cập nhật voucher_type của đơn hàng về  1",
+				Value: `
+					!set_voucher_type_outbound_order <sales_order_number>
+					Example: !set_voucher_type_outbound_order 1234567890
+				`,
+			},
 		},
 	}
 }

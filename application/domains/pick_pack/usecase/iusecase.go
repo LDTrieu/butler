@@ -8,4 +8,5 @@ import (
 type IUseCase interface {
 	AutoPickPack(ctx context.Context, params models.AutoPickPackRequest) (string, error)
 	PickPackKafka(ctx context.Context, params *models.AutoPickPackRequest) error
+	SetOutboundOrderVoucherType(ctx context.Context, params *models.SetOutboundOrderVoucherTypeRequest) error
 }

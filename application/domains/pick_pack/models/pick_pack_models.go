@@ -88,3 +88,8 @@ type WmsOrderPayloadItem struct {
 	ExpDate     []string `json:"exp_date"`
 	VoucherCode []string `json:"voucher_code"`
 }
+
+type SetOutboundOrderVoucherTypeRequest struct {
+	SalesOrderNumber string
+	VoucherType      int64
+}
