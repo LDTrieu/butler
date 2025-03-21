@@ -123,3 +123,30 @@ func (h Handler) PickPackKafka(s *discordgo.Session, m *discordgo.MessageCreate)
 
 	return nil
 }
+
+func (h Handler) SetOutboundOrderVoucherType(s *discordgo.Session, m *discordgo.MessageCreate) error {
+	reg := regexp.MustCompile(`[0-9]+`)
+	SalesOrderNumber := strings.TrimSpace(reg.FindString(m.Content))
+	if SalesOrderNumber == "" {
+		return errors.New("SalesOrderNumber không hợp lệ")
+	}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
+	defer cancel()
+
+	err := h.usecase.SetOutboundOrderVoucherType(ctx, &models.SetOutboundOrderVoucherTypeRequest{
+		SalesOrderNumber: SalesOrderNumber,
+		VoucherType:      1,
+	})
+	if err != nil {
+		logrus.Errorf("Failed to set outbound order vouchertype: %v", err)
+		return err
+	}
+	_, err = s.ChannelMessageSend(m.ChannelID, "DONE: Set Outbound Order Voucher Type = 1")
+	if err != nil {
+		logrus.Errorf("Failed to send message: %v", err)
+		return err
+	}
+
+	return nil
+}
