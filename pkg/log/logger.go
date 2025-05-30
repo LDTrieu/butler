@@ -20,7 +20,7 @@ func init() {
 		FullTimestamp:          true,
 		DisableLevelTruncation: true, // log level field configuration
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			return "", fmt.Sprintf("%s:%d", formatFilePath(f.File), f.Line)
+			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", formatFilePath(f.File), f.Line)
 		},
 	}
 	logrus.SetFormatter(formatter)
