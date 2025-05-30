@@ -122,7 +122,9 @@ func (h Handler) ShowConfigWarehouse(s *discordgo.Session, m *discordgo.MessageC
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
 	defer cancel()
 
-	tokens := strings.Split(m.Content, " ")
+	content := strings.TrimSpace(m.Content)
+	content = strings.Join(strings.Fields(content), " ")
+	tokens := strings.Split(content, " ")
 	if len(tokens) != 3 && len(tokens) != 4 {
 		return fmt.Errorf("command invalid")
 	}
