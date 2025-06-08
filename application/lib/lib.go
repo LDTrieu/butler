@@ -20,6 +20,7 @@ type Lib struct {
 	KafkaPublisherQc   kafka.Publisher
 	KafkaPublisherProd kafka.Publisher
 	Cache              *cache.Cache
+	DiscordBot         config.Butler
 }
 
 func InitLib(cfg *config.Config) *Lib {

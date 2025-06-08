@@ -140,19 +140,4 @@ func (h Handler) PreparePick(s *discordgo.Session, m *discordgo.MessageCreate) e
 	return nil
 }
 
-// func (h Handler) Pick(s *discordgo.Session, m *discordgo.MessageCreate) error {
-// 	reg := regexp.MustCompile(`[0-9]+`)
-// 	saleOrderNumber := reg.FindString(m.Content)
-// 	logrus.Infof("Prepare for outbound [%s] to pick", saleOrderNumber)
-// 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(30*time.Second))
-// 	defer cancel()
 
-// 	if err := h.usecase.Pick(ctx, &models.PickRequest{
-// 		SalesOrderNumber: saleOrderNumber,
-// 	}); err != nil {
-// 		logrus.Errorf("Failed pick outbound: %v", err)
-// 		return err
-// 	}
-// 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Outbound [%s] is picked!", saleOrderNumber))
-// 	return nil
-// }

@@ -247,16 +247,7 @@ func (u *usecase) ResetCartByEmail(ctx context.Context, param *models.ResetCartB
 				return "", err
 			}
 		}
-		// else {
-		// 	_, err := u.cartMappingSv.Create(ctx, &cartMappingModels.BinLocationCartMapping{
-		// 		CartCode: cart.CartCode,
-		// 		UsedBy:   cart.UpdatedBy,
-		// 		Status:   constants.BIN_LOCATION_CART_MAPPING_STATUS_FINISH,
-		// 	})
-		// 	if err != nil {
-		// 		return "", err
-		// 	}
-		// }
+
 		pickingGroups, err := u.pickingGroupSv.GetList(ctx, &pgModels.GetRequest{
 			CartCode:  cart.CartCode,
 			StatusIds: []int64{constants.PICKING_GROUP_STATUS_NEW, constants.PICKING_GROUP_STATUS_PICKING}},

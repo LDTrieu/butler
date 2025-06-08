@@ -23,6 +23,7 @@ type Config struct {
 
 type Butler struct {
 	Token string
+	DiscordConfig
 }
 type DiscordBot struct {
 	Butler Butler
