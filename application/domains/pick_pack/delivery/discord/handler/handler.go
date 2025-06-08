@@ -40,11 +40,10 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 		return fmt.Errorf("Thiếu tham số. Vui lòng sử dụng: !runpickpack [email][password][mã đơn][mã vận chuyển]")
 	}
 
-	// Lấy email và password từ tham số đầu vào
-	emailWms := matches[0][1]                                      // email ở vị trí đầu tiên
-	passwordWms := matches[1][1]                                   // password ở vị trí thứ hai
-	shipmentNumber := matches[2][1]                                // mã đơn ở vị trí thứ ba
-	shippingUnitId, err := strconv.ParseInt(matches[3][1], 10, 64) // mã vận chuyển ở vị trí thứ tư
+	emailWms := matches[0][1]
+	passwordWms := matches[1][1]
+	shipmentNumber := matches[2][1]
+	shippingUnitId, err := strconv.ParseInt(matches[3][1], 10, 64)
 	if err != nil {
 		return fmt.Errorf("Mã vận chuyển không hợp lệ: %v", err)
 	}
@@ -58,9 +57,9 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 				PasswordWms: passwordWms,
 			},
 			LoginDiscordRequest: models.LoginDiscordRequest{
-				LoginDiscord:    "trieuld@hasaki.vn",
-				PasswordDiscord: "123456aH@",
-				Undelete:        false,
+				LoginDiscord:    h.lib.DiscordBot.Login,
+				PasswordDiscord: h.lib.DiscordBot.Password,
+				Undelete:        h.lib.DiscordBot.Undelete,
 			},
 		},
 		SalesOrderNumber: shipmentNumber,
@@ -73,20 +72,6 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 		return err
 	}
 
-	// Chia nhỏ kết quả thành nhiều phần nếu quá dài
-	// const maxLength = 1990 // Để lại một chút dư cho các ký tự định dạng
-	// for i := 0; i < len(result); i += maxLength {
-	// 	end := i + maxLength
-	// 	if end > len(result) {
-	// 		end = len(result)
-	// 	}
-	// 	chunk := result[i:end]
-	// 	_, err := s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("```%s```", chunk))
-	// 	if err != nil {
-	// 		logrus.Errorf("Failed to send message: %v", err)
-	// 		return err
-	// 	}
-	// }
 	_, err = s.ChannelMessageSend(m.ChannelID, "DONE: Run PICK PACK")
 	if err != nil {
 		logrus.Errorf("Failed to send message: %v", err)

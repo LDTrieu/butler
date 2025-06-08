@@ -68,8 +68,6 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 	if !strings.HasPrefix(m.Content, constants.BOT_COMMAND_PREFIX) && !helper.CheckMention(m, s.State.User) {
 		return
 	}
-	// logrus.Debugf("member roles: %v", m.Member.Roles)
-	// logrus.Debugf("channel id: %v", m.ChannelID)
 
 	var err error
 	switch {
@@ -114,16 +112,3 @@ func (c *commandHandler) GetCommandsHandler(s *discordgo.Session, m *discordgo.M
 		s.ChannelMessageSend(m.ChannelID, err.Error())
 	}
 }
-
-// func CheckPermission(s *discordgo.Session, m *discordgo.MessageCreate) bool {
-// 	user, err := s.State.Guild(m.GuildID)
-// 	if err != nil {
-// 		logrus.Errorf("Failed get guild: %v", err)
-// 		return false
-// 	}
-
-// 	if m.Author.ID == s.State.User.ID {
-// 		return false
-// 	}
-// 	return true
-// }

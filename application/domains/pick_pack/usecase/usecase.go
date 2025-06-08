@@ -64,7 +64,6 @@ func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*mode
 	var wms *models.LoginWmsResponse
 	var discord *models.LoginDiscordResponse
 
-	// Lấy thông tin WMS từ cache dưới dạng map
 	wmsDataStr, err := u.lib.Rdb.Get(ctx, fmt.Sprintf("%s:%s", constants.WMS_DATA, params.LoginWmsRequest.EmailWms)).Result()
 	if err != nil && err.Error() != "redis: nil" {
 		return nil, err
@@ -77,33 +76,28 @@ func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*mode
 		}
 	}
 
-	// Nếu không có data trong cache hoặc data không đầy đủ, thực hiện login và cache mới
 	if wmsData == nil || wmsData["token"] == "" {
 		wms, err = u.loginWms(ctx, params.LoginWmsRequest.EmailWms, params.LoginWmsRequest.PasswordWms)
 		if err != nil {
 			return nil, err
 		}
 
-		// Tạo map mới để lưu cache
 		wmsData = map[string]string{
 			"token":  wms.Token,
 			"email":  wms.User.Email,
 			"userId": strconv.FormatInt(int64(wms.User.UserId), 10),
 		}
 
-		// Chuyển map thành JSON string
 		wmsDataBytes, err := json.Marshal(wmsData)
 		if err != nil {
 			return nil, err
 		}
 
-		// Cache WMS data
 		if err := u.lib.Rdb.Set(ctx, fmt.Sprintf("%s:%s", constants.WMS_DATA, wms.User.Email),
 			string(wmsDataBytes), 8*time.Hour).Err(); err != nil {
 			return nil, err
 		}
 	} else {
-		// Nếu có data trong cache, khởi tạo wms response
 		userId, _ := strconv.Atoi(wmsData["userId"])
 		wms = &models.LoginWmsResponse{
 			Token: wmsData["token"],
@@ -119,13 +113,11 @@ func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*mode
 		}
 	}
 
-	// Lấy token Discord từ cache
 	tokenDiscord, err := u.lib.Rdb.Get(ctx, constants.TOKEN_DISCORD).Result()
 	if err != nil && err.Error() != "redis: nil" {
 		return nil, err
 	}
 
-	// Nếu không có token Discord trong cache, thực hiện login và cache mới
 	if tokenDiscord == "" {
 		discord, err = u.loginDiscord(ctx, params.LoginDiscordRequest.LoginDiscord, params.LoginDiscordRequest.PasswordDiscord)
 		if err != nil {
@@ -133,7 +125,6 @@ func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*mode
 		}
 		tokenDiscord = discord.Token
 
-		// Cache Discord token
 		if err := u.lib.Rdb.Set(ctx, constants.TOKEN_DISCORD, tokenDiscord, 24*time.Hour).Err(); err != nil {
 			return nil, err
 		}
@@ -165,7 +156,6 @@ func (u *usecase) runNewman(ctx context.Context, shipmentNumber string, shipping
 		"--env-var", fmt.Sprintf("shipping_unit_id=%d", shippingUnitId),
 	)
 
-	// Set output
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
