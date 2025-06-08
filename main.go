@@ -27,20 +27,4 @@ func main() {
 	<-quit
 }
 
-func runTestPickPack(lib *lib.Lib, cfg *config.Config) {
-	// ctx := context.Background()
-	// initPickPackUc := pickPackUc.InitUseCase(lib, cfg, nil)
-
-	// initPickPackUc.AutoPickPack(ctx, models.AutoPickPackRequest{
-	// 	LoginRequest: models.LoginRequest{
-	// 		LoginDiscordRequest: models.LoginDiscordRequest{
-	// 			Login:    "sonplh@hasaki.vn",
-	// 			Password: "12345a@A",
-	// 		},
-	// 	},
-	// 	SalesOrderNumber: "123456",
-	// 	WarehouseId:      14,
-	// 	ShippingUnitId:   104, //
-	// })
-
-}
+func runTestPickPack(lib *lib.Lib, cfg *config.Config) {}

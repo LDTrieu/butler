@@ -51,7 +51,7 @@ func HelpEmbed() *discordgo.MessageEmbed {
 				Name: "reset tất cả giỏ của email",
 				Value: `
                     !reset_cart_by_email <email>
-                    Example: !reset_cart_by_email trieuld
+                    Example: !reset_cart_by_email abc@gmail.com
                 `,
 			},
 			{
