@@ -57,8 +57,8 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 				PasswordWms: passwordWms,
 			},
 			LoginDiscordRequest: models.LoginDiscordRequest{
-				LoginDiscord:    "h.lib.DiscordBot.Login",
-				PasswordDiscord: "h.lib.DiscordBot.Password",
+				LoginDiscord:    h.lib.DiscordBot.Login,
+				PasswordDiscord: h.lib.DiscordBot.Password,
 				Undelete:        false,
 			},
 		},
