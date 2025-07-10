@@ -4,8 +4,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
 
 	"bitbucket.org/hasaki-tech/zeus/config"
 	"github.com/spf13/viper"
@@ -91,9 +89,9 @@ func GetConfig() (*Config, error) {
 func LoadConfig(filename string) (*viper.Viper, error) {
 	v := viper.New()
 	v.SetConfigName(filename)
-	_, b, _, _ := runtime.Caller(0)
-	path_config := filepath.Join(filepath.Dir(b), "..")
-	v.AddConfigPath(path_config)
+	//_, b, _, _ := runtime.Caller(0)
+	// path_config := filepath.Join(filepath.Dir(b), "..")
+	v.AddConfigPath(".")
 	v.AutomaticEnv()
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
