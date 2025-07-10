@@ -52,5 +52,6 @@ func InitLib(cfg *config.Config) *Lib {
 		KafkaPublisherQc:   publisherQc,
 		KafkaPublisherProd: publisherProd,
 		Cache:              cache,
+		DiscordBot:         cfg.DiscordBot.Butler,
 	}
 }

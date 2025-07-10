@@ -59,7 +59,7 @@ func (h Handler) ReadyPickPack(s *discordgo.Session, m *discordgo.MessageCreate)
 			LoginDiscordRequest: models.LoginDiscordRequest{
 				LoginDiscord:    h.lib.DiscordBot.Login,
 				PasswordDiscord: h.lib.DiscordBot.Password,
-				Undelete:        h.lib.DiscordBot.Undelete,
+				Undelete:        false,
 			},
 		},
 		SalesOrderNumber: shipmentNumber,
