@@ -65,3 +65,9 @@ var OUTBOUND_ORDER_CONFIG_MAP_NAME = map[int]string{
 const (
 	OWNER_ID_OMS int64 = 1503
 )
+
+var OUTBOUND_ORDER_PRIORITY_MAP = map[int64]int64{
+	500: 3, // HIGH
+	300: 2, // MEDIUM
+	200: 1, // LOW
+}

@@ -139,5 +139,3 @@ func (h Handler) PreparePick(s *discordgo.Session, m *discordgo.MessageCreate) e
 
 	return nil
 }
-
-

@@ -54,7 +54,6 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	if outbound == nil || outbound.OutboundOrderId == 0 {
 		return fmt.Errorf("không tìm thấy mã outbound với source code [%s]", params.SalesOrderNumber)
 	}
-
 	if outbound.StatusId != 1 {
 		return fmt.Errorf("Outbound order [%s] không ở trạng thái picklisted", params.SalesOrderNumber)
 	}
@@ -62,7 +61,17 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		if outbound.Config&constants.OUTBOUND_ORDER_CONFIG_NOT_ENOUGH_QTY != 0 {
 			return fmt.Errorf("Outbound order [%s] không đủ hàng đi pick", params.SalesOrderNumber)
 		}
-
+	}
+	if outbound.OutboundOrderType == constants.OUTBOUND_ORDER_TYPE_ORDER {
+		if newPriority, exists := constants.OUTBOUND_ORDER_PRIORITY_MAP[outbound.PriorityId]; exists {
+			_, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
+				OutboundOrderId: outbound.OutboundOrderId,
+				PriorityId:      newPriority,
+			})
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	picking, err := u.pickingSv.GetOne(ctx, &pickingModel.GetRequest{OutboundOrderId: outbound.OutboundOrderId})
