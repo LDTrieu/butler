@@ -62,17 +62,6 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 			return fmt.Errorf("Outbound order [%s] không đủ hàng đi pick", params.SalesOrderNumber)
 		}
 	}
-	if outbound.OutboundOrderType == constants.OUTBOUND_ORDER_TYPE_ORDER {
-		if newPriority, exists := constants.OUTBOUND_ORDER_PRIORITY_MAP[outbound.PriorityId]; exists {
-			_, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
-				OutboundOrderId: outbound.OutboundOrderId,
-				PriorityId:      newPriority,
-			})
-			if err != nil {
-				return err
-			}
-		}
-	}
 
 	picking, err := u.pickingSv.GetOne(ctx, &pickingModel.GetRequest{OutboundOrderId: outbound.OutboundOrderId})
 	if err != nil {
@@ -166,7 +155,17 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 	}
 
 	// update
-
+	if outbound.OutboundOrderType == constants.OUTBOUND_ORDER_TYPE_ORDER {
+		if newPriority, exists := constants.OUTBOUND_ORDER_PRIORITY_MAP[outbound.PriorityId]; exists {
+			_, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
+				OutboundOrderId: outbound.OutboundOrderId,
+				PriorityId:      newPriority,
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
 	if time.Until(outbound.CreatedAt.Add(-7*time.Hour)).Abs().Minutes() < 30 {
 		if _, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
 			OutboundOrderId: outbound.OutboundOrderId,
