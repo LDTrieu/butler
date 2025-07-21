@@ -63,27 +63,10 @@ func (u *usecase) ReadyPickOutbound(ctx context.Context, params *models.ReadyPic
 		}
 	}
 	if outbound.OutboundOrderType == constants.OUTBOUND_ORDER_TYPE_ORDER {
-		switch outbound.PriorityId {
-		case 500:
+		if newPriority, exists := constants.OUTBOUND_ORDER_PRIORITY_MAP[outbound.PriorityId]; exists {
 			_, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
 				OutboundOrderId: outbound.OutboundOrderId,
-				PriorityId:      3,
-			})
-			if err != nil {
-				return err
-			}
-		case 300:
-			_, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
-				OutboundOrderId: outbound.OutboundOrderId,
-				PriorityId:      2,
-			})
-			if err != nil {
-				return err
-			}
-		case 200:
-			_, err := u.outboundOrderSv.Update(ctx, &outboundModel.OutboundOrder{
-				OutboundOrderId: outbound.OutboundOrderId,
-				PriorityId:      1,
+				PriorityId:      newPriority,
 			})
 			if err != nil {
 				return err
