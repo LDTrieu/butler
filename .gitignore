@@ -15,9 +15,19 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 
+# Large media files
+*.mp4
+*.tiff
+*.avi
+*.flv
+*.mov
+*.wmv
+
+
 # Go workspace file
 go.work
 
 # setting
 .vscode/
 config/*.yml
+
