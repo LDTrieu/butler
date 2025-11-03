@@ -8,13 +8,10 @@ import (
 	"butler/application/lib"
 	"butler/config"
 	"butler/constants"
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
-	"os/exec"
 	"strconv"
 	"time"
 )
@@ -37,27 +34,6 @@ func InitUseCase(
 		outboundOrderSv:       services.OutboundOrderService,
 		outboundOrderExtendSv: services.OutboundOrderExtendService,
 	}
-}
-
-func (u *usecase) AutoPickPack(ctx context.Context, params models.AutoPickPackRequest) (string, error) {
-	// Login
-	login, err := u.Login(ctx, &params.LoginRequest)
-	if err != nil {
-		return "", err
-	}
-
-	tokenWms := login.LoginWmsResponse.Token
-	emailWms := login.LoginWmsResponse.User.Email
-	userId := login.LoginWmsResponse.User.UserId
-	tokenDiscord := login.LoginDiscordResponse.Token
-
-	// Run newman json
-	result, err := u.runNewman(ctx, params.SalesOrderNumber, params.ShippingUnitId, emailWms, int64(userId), tokenWms, tokenDiscord)
-	if err != nil {
-		return "", err
-	}
-
-	return result, nil
 }
 
 func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*models.LoginResponse, error) {
@@ -142,30 +118,4 @@ func (u *usecase) Login(ctx context.Context, params *models.LoginRequest) (*mode
 		LoginWmsResponse:     *wms,
 		LoginDiscordResponse: *discord,
 	}, nil
-}
-
-func (u *usecase) runNewman(ctx context.Context, shipmentNumber string, shippingUnitId int64, emailWms string, userId int64, tokenWms string, tokenDiscord string) (string, error) {
-	cmd := exec.Command("newman",
-		"run",
-		"collection1.json",
-		"--env-var", fmt.Sprintf("token_discord=%s", tokenDiscord),
-		"--env-var", fmt.Sprintf("token=%s", tokenWms),
-		"--env-var", fmt.Sprintf("email=%s", emailWms),
-		"--env-var", fmt.Sprintf("user_id=%d", userId),
-		"--env-var", fmt.Sprintf("shipment_number=%s", shipmentNumber),
-		"--env-var", fmt.Sprintf("shipping_unit_id=%d", shippingUnitId),
-	)
-
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	// Run newman
-	err := cmd.Run()
-	if err != nil {
-		log.Printf("Lỗi stderr: %s", stderr.String())
-		return "", fmt.Errorf("error running newman: %v\nStderr: %s", err, stderr.String())
-	}
-
-	return fmt.Sprintf("Stdout: %s\nStderr: %s", stdout.String(), stderr.String()), nil
 }
